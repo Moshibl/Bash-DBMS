@@ -7,6 +7,7 @@
 # Function to validate database/table names
 validate_name() {
     # Ensure name follows naming rules (no special characters, spaces, etc.)
+    # Ensure name does not start with numbers
 }
 
 # Function to validate data types
