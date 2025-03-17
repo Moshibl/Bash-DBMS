@@ -7,14 +7,21 @@
 # Function to print formatted tables
 print_table() {
     # Format and display table data in a structured way
+    true
 }
 
-# Function to handle user input
+# # Function to handle user input
 read_input() {
-    # Read  user input
+    read -p "Enter a valid name: " name
+    echo $name 
 }
 
-# Function to display error messages
+# # Function to display error messages
 error_message() {
-    # Print error messages in red for better visibility
+   message=$1
+   echo -e "\e[1;31m$message\e[0m"
+}
+success_message() {
+   message=$1
+   echo -e "\e[1;32m$message\e[0m"
 }
