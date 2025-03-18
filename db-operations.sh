@@ -86,5 +86,5 @@ drop_database() {
 
 # create_database
 # list_databases
-connect_database
+# connect_database
 # drop_database
