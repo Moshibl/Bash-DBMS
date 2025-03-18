@@ -53,16 +53,18 @@ fi
 
 # # Function to handle user input
 read_input() {
-    read -p "Enter a valid name: " name
+    local message=$1
+    read -p "$message" name
     echo $name 
 }
 
 # # Function to display error messages
 error_message() {
-   message=$1
+   local message=$1
    echo -e "\e[1;31m$message\e[0m"
 }
 success_message() {
-   message=$1
+   local message=$1
    echo -e "\e[1;32m$message\e[0m"
 }
+
