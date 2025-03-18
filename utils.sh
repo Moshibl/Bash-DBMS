@@ -7,13 +7,6 @@
 # Function to print formatted tables
 print_table() {
 col_count=4
-ls *.tb | sed 's/.tb//'
-read -p "Enter Table Name: " tb_name
-if [ ! -f $tb_name.tb ]; then
-    clear
-    echo "Table Doesn't Exist!"
-    return
-else
     awk -v col_count="$col_count" '
     BEGIN {
         FS=":"
@@ -48,9 +41,7 @@ else
         print LS
     }
     ' test.meta $tb_name.tb
-fi
 }
-
 # # Function to handle user input
 read_input() {
     read -p "Enter a valid name: " name
