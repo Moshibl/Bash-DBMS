@@ -73,12 +73,25 @@ connect_database() {
 # Function to drop a database
 drop_database() {
     # Confirm and delete the selected database directory
-    cd Databases/
-    ls
-    DB_name=TEST
+    list_databases
+    DB_name=$(read_input "Select the database you want to drop: ")
     if [ -d $DB_name ]
     then
-        rm -r $DB_name
+        PS3="$DB_name# "
+        select confirm in "Yes" "No"
+        do
+        case $confirm in
+            "Yes")
+            success_message "$DB_name Dropped"
+            rm -r $DB_name
+            break
+            ;;
+            "No")
+            success_message "Drop Aborted"
+            break
+            ;;
+        esac
+        done
     else
         error_message "This Database Doesn't exist"
     fi

@@ -129,11 +129,10 @@ do
   case $next in
     "Perform Operations")
       perform_operations $selected_table
-
       ;;
     "Exit")
       success_message "Goodbye"
-      exit
+      break
       ;;
     *)
       error_message "Invalid choice. Please select an option."
@@ -170,7 +169,7 @@ do
       ;;
     "Exit")
       success_message "Goodbye!"
-      exit
+      break
       ;;
     *)
       error_message "Invalid choice. Please select an operation."
