@@ -80,3 +80,21 @@ table_exists()
         fi
     done
 }
+validate_column_count()
+{
+    local nOfColumns=$1
+    while true 
+    do
+      if ! [[ $nOfColumns =~  ^[1-9][0-9]*$  ]]
+      then
+        error_message "❌ Invalid input!" >&2
+        nOfColumns=$(read_input "📊  Please enter a positive number for the number of columns : ")
+
+      else
+        success_message "✅ Success! The number of columns has been accepted." >&2
+        echo $nOfColumns
+        break
+      fi
+
+    done 
+}
