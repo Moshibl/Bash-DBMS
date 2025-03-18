@@ -16,13 +16,12 @@ validate_name() {
         if [[ $name =~ ^[a-zA-Z]+(_?[a-zA-Z0-9]+)*$ ]]
         then
             # set -x
-            success_message "✅ Valid name: $name"
-            tableName=$name
+            success_message "✅ Valid name: $name" >&2
+            echo $name
             # set +x
-            # return 0
             break
         fi
-        error_message "⚠️ Invalid input!"
+        error_message "⚠️ Invalid input!" >&2
         name=$(read_input  "✅ Please enter a valid name: ") 
     done
 }
@@ -57,7 +56,6 @@ table_exists()
     local tableName=$1
     while true
     do
-        echo "shiamaaaa $tableName"
         if [[ -f $tableName.tb ]]
         then
                 PS3="🔹 Please enter your option: "

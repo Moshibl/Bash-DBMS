@@ -13,15 +13,16 @@ create_table() {
   # Step 1: Ask the user for the table name
     # - Validate that the name follows naming conventions
     # - Ensure the table name does not already exist
-    # set -x
+
+    set -x
     local tableName=$(read_input "👉 Please enter the name of the table: ")
     # set +x
-    validate_name $tableName
+    tableName=$(validate_name "$tableName")
     # set -x
     table_exists $tableName
     # set +x
 
-
+    touch $tableName.tb $tableName.meta
 
     # Step 2: Define table columns
     # - Ask the user how many columns they want
@@ -30,9 +31,17 @@ create_table() {
     #   - Ask for column data type (e.g., STRING, INTEGER) and validate it
     #   - Ask if this column should be UNIQUE (Yes/No)
     
+    local nOfColumns=$(read_input "📊 Please enter the number of columns for your table: ")
+    for(( i=1; i<=nOfColumns; i++))
+    do
+      local columnName=$(read_input "👉 Please enter the name of the column: ")
+      columnName=$(validate_name "$columnName")
+      local columnDataType=$(choose_data_type)
+      local columnUniqueness=$(choose_uniqueness)
+
+    done
 
 
-    
     # Step 3: Ask the user to enter the number corresponding to the primary key column.
     # - Validate the selection:
     #   - Ensure the input is a valid number.
