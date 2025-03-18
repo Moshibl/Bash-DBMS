@@ -28,7 +28,6 @@ col_count=4
         print LS
         next
     }
-
     {
         output = "|"
         for (i = 1; i <= col_count; i++) {
@@ -44,16 +43,66 @@ col_count=4
 }
 # # Function to handle user input
 read_input() {
-    read -p "Enter a valid name: " name
+    local message=$1
+    read -r -p "$message" name
     echo $name 
 }
 
 # # Function to display error messages
 error_message() {
-   message=$1
+   local message=$1
    echo -e "\e[1;31m$message\e[0m"
 }
 success_message() {
-   message=$1
+   local message=$1
    echo -e "\e[1;32m$message\e[0m"
+}
+
+# =======================================================================
+#                   Helper Functions
+# =========================================================================
+
+choose_data_type(){
+
+    PS3="👉 Please enter the data type for the column (📊 INTEGER / 🔤 STRING / 📅 DATE): "
+    select option in "📊 INTEGER"  "🔤 STRING" "📅 DATE"
+    do
+    case $option in
+        "📊 INTEGER")
+            echo "INTEGER"
+        break
+        ;;
+
+        "🔤 STRING")
+            echo "STRING"
+
+        break
+        ;;
+        "📅 DATE")
+            echo "DATE"
+
+        break
+        ;;
+
+    esac
+    done
+}
+
+
+choose_uniqueness(){
+    PS3="👉 Would you like this field to be unique? (🔒 Yes / ❌ No): "
+
+    select option in "🔒 Yes"  "❌ No"
+    do
+        case $option in
+        "🔒 Yes")
+            echo "UNIQUE"
+            break
+        ;;
+        "❌ No")
+            echo "NULL"
+            break
+        ;;
+        esac
+    done
 }

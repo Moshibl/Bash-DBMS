@@ -5,10 +5,48 @@
 # - Drop Table
 
 # source validation.sh  # Import validation functions
+source validation.sh  
 source record-operations.sh
 source utils.sh
 
+
 # Function to create a table
+create_table() {
+  # Step 1: Ask the user for the table name
+    # - Validate that the name follows naming conventions
+    # - Ensure the table name does not already exist
+
+    set -x
+    local tableName=$(read_input "👉 Please enter the name of the table: ")
+    # set +x
+    tableName=$(validate_name "$tableName")
+    # set -x
+    table_exists $tableName
+    # set +x
+
+    touch $tableName.tb $tableName.meta
+
+    # Step 2: Define table columns
+    # - Ask the user how many columns they want
+    # - For each column:
+    #   - Ask for column name and validate it (must not contain spaces/special characters)
+    #   - Ask for column data type (e.g., STRING, INTEGER) and validate it
+    #   - Ask if this column should be UNIQUE (Yes/No)
+    
+    local nOfColumns=$(read_input "📊 Please enter the number of columns for your table: ")
+    for(( i=1; i<=nOfColumns; i++))
+    do
+      local columnName=$(read_input "👉 Please enter the name of the column: ")
+      columnName=$(validate_name "$columnName")
+      local columnDataType=$(choose_data_type)
+      local columnUniqueness=$(choose_uniqueness)
+
+    done
+
+
+    # Step 3: Ask the user to enter the number corresponding to the primary key column.
+    # - Validate the selection:
+    #   - Ensure the input is a valid number.
 # create_table() {
 #   # Step 1: Ask the user for the table name
 #     # - Validate that the name follows naming conventions
@@ -34,7 +72,7 @@ source utils.sh
 #     # - Store actual table data in a separate `.table` file
     
 #     # Step 6: Display a success message after table creation
-# }
+}
 
 
 
@@ -126,6 +164,7 @@ do
       ;;
   esac
 done
+    true
 }
 
 # Function to drop a table
