@@ -39,7 +39,7 @@ col_count=4
     END {
         print LS
     }
-    ' test.meta $tb_name.tb
+    ' $tb_name.meta $tb_name.tb
 }
 # # Function to handle user input
 read_input() {
@@ -57,7 +57,10 @@ success_message() {
    local message=$1
    echo -e "\e[1;32m$message\e[0m"
 }
-
+prompt_message() {
+   local message=$1
+   echo -e "\e[1;36m$message\e[0m"
+}
 # =======================================================================
 #                   Helper Functions
 # =========================================================================

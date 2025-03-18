@@ -94,15 +94,13 @@ list_tables() {
 # 2) Exit back to the database menu.
 # If the user selects a table, they will be navigated to the record operations menu,
 # where they must choose an operation or exit.
-db_name="DB"
-PS3="$db_name# "
-cd test_db/
-echo "Select a table from $db_name:"
+PS3="$DB_name# "
+prompt_message "Select a table from $DB_name:"
 echo""
 select tb_name in $(ls *.tb | sed 's/.tb//') 
 do
 if [ ! -f $tb_name.tb ]; then
-    echo "Table Doesn't Exist!"
+    error_message "Table Doesn't Exist!"
     return 1
 fi
   case $tb_name in
@@ -110,17 +108,22 @@ fi
       selected_table=$tb_name
       PS3="$selected_table# "
       echo""
-      echo "Selected Table: $selected_table"
+      success_message "Selected Table: $selected_table"
       print_table
+      next 
       echo""
       break
       ;;
     *)
-      echo "Invalid choice. Please select a table."
+      error_message "Invalid choice. Please select a table."
       exit
       ;;
   esac
 done
+}
+next(){
+echo""
+prompt_message "What do you want to do next: "
 select next in "Perform Operations" "Exit"
 do
   case $next in
@@ -129,49 +132,48 @@ do
 
       ;;
     "Exit")
-      echo "Exit"
+      success_message "Goodbye"
       exit
       ;;
     *)
-      echo "Invalid choice. Please select an option."
+      error_message "Invalid choice. Please select an option."
       ;;
   esac
 done
 }
-
 perform_operations() {
 echo""
-echo "Select Operation perform on $selected_table:"
+prompt_message "Select Operation perform on $selected_table:"
 echo""
 select operation in "Select Record" "Insert Record" "Update Record" "Delete Record"  "Drop Table" "Exit"
 do
   case $operation in
     "Select Record")
       select_from_table $selected_table
-      perform_operations $selected_table
+      next
       ;;
     "Insert Record")
       insert_into_table $selected_table
-      perform_operations $selected_table
+      next
       ;;
     "Update Record")
       update_table  $selected_table
-      perform_operations $selected_table
+      next
       ;;
     "Delete Record")
       delete_from_table $selected_table
-      perform_operations $selected_table
+      next
       ;;
     "Drop Table")
       drop_table  $selected_table
-      perform_operations $selected_table
+      next
       ;;
     "Exit")
-      echo "Exit"
-      break
+      success_message "Goodbye!"
+      exit
       ;;
     *)
-      echo "Invalid choice. Please select an operation."
+      error_message "Invalid choice. Please select an operation."
       ;;
   esac
 done
@@ -180,9 +182,28 @@ done
 
 # Function to drop a table
 drop_table() {
-    # Confirm and delete the selected table and its metadata
-    echo "Drop Table"
+    if [ -f "$tb_name.tb" ]
+    then
+    echo""
+    prompt_message "Are you sure you want to delete $tb_name? "
+      select confirm in "Yes" "No"
+      do
+      case $confirm in
+        "Yes")
+          success_message "$tb_name Deleted"
+          rm -f $tb_name.*
+          break
+          ;;
+        "No")
+          success_message "Delete Aborted"
+          break
+          ;;
+      esac
+      done
+    else
+      error_message "Table Doesn't Exist"
+    fi
 }
 
 # list_tables
-create_table 
+# create_table 

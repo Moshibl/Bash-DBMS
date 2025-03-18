@@ -16,7 +16,6 @@ validate_name() {
         if [[ $name =~ ^[a-zA-Z]+(_?[a-zA-Z0-9]+)*$ ]]
         then
             # set -x
-            success_message "✅ Valid name: $name" >&2
             echo $name
             # set +x
             break
