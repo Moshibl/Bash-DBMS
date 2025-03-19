@@ -10,7 +10,6 @@ SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 main_menu() {
     while true
     do  
-        clear
         prompt_message "🎉 Welcome to Bash DBMS! 🎉"
         PS3="📌 Please choose an option:"
         select option in "Create DB" "List DBs" "Connect DB" "Drop DB" "Exit"

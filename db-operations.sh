@@ -40,8 +40,8 @@ list_databases() {
        clear
         success_message "Available Databases:"
         ls -1 "$databaseDire"
-        echo""
     fi
+
 }
 
 # Function to connect to a database
