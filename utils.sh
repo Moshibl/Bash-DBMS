@@ -47,8 +47,7 @@ read_input() {
     read -r -p "$message" name
     echo $name 
 }
-
-# # Function to display error messages
+ # Function to display error messages
 error_message() {
    local message=$1
    echo -e "\e[1;31m$message\e[0m"
@@ -75,26 +74,21 @@ choose_data_type(){
             echo "INTEGER"
         break
         ;;
-
         "🔤 STRING")
             echo "STRING"
-
         break
         ;;
         "📅 DATE")
             echo "DATE"
-
         break
         ;;
-
     esac
     done
 }
 
 
 choose_uniqueness(){
-    PS3="👉 Would you like this field to be unique? (🔒 Yes / ❌ No): "
-
+    PS3="Would you like this field to be unique? (🔒 Yes / ❌ No): "
     select option in "🔒 Yes"  "❌ No"
     do
         case $option in
@@ -109,4 +103,3 @@ choose_uniqueness(){
         esac
     done
 }
-

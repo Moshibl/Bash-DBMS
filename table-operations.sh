@@ -17,7 +17,7 @@ create_table() {
     # - Ensure the table name does not already exist
     # set -x
     local dataBaseDir=$1
-    local tableName=$(read_input "👉 Please enter the name of the table: ")
+    local tableName=$(read_input "Please enter the name of the table: ")
     # set +x
     tableName=$(validate_name "$tableName")
     table_exists "$dataBaseDir"/$tableName
@@ -32,7 +32,6 @@ create_table() {
     # 
     local tableDataDir="$dataBaseDir"/$tableName.tb
     local tableMetaDir="$dataBaseDir"/$tableName.meta
-
     touch "$tableDataDir" "$tableMetaDir" 
 
     # Step 3: Define table columns
@@ -42,20 +41,16 @@ create_table() {
     #   - Ask for column data type (e.g., STRING, INTEGER) and validate it
     #   - Ask if this column should be UNIQUE (Yes/No)
     local  metaData
-    
     local nOfColumns=$(read_input "📊 Please enter the number of columns for your table: ")
     nOfColumns=$(validate_column_count $nOfColumns)
 
-
     for(( i=1; i<=nOfColumns; i++))
     do
-      local columnName=$(read_input "👉 Please enter the name of the column: ")
+      local columnName=$(read_input "Please enter the name of the column: ")
       columnName=$(validate_name "$columnName")
       local columnDataType=$(choose_data_type)
       local columnUniqueness=$(choose_uniqueness)
       metaData+=("${columnName}":${columnDataType}:${columnUniqueness})
-
-
     done
 
   
@@ -84,12 +79,9 @@ create_table() {
     # - Store this information in a `.meta` file inside the database directory
     printf "%s\n" "${metaData[@]}" > "$tableMetaDir"
     
-
-    
     # Step 6: Display a success message after table creation
     clear
-    success_message "🎉 Table '$tableName' has been successfully created! 🚀"
-
+    success_message "Table '$tableName' has been successfully created! 🚀"
 }
 
 
@@ -103,8 +95,6 @@ list_tables() {
   # where they must choose an operation or exit.
 
   dbTablesDir="$1"
-
-
   for table in "$dbTablesDir"/*.tb
   do
     local tables+=($(basename "$table" .tb))
@@ -118,7 +108,8 @@ list_tables() {
   do 
     clear
     prompt_message "📜 Tables are available in $DB_name."
-    PS3="👉 Choose a table to proceed with your desired operation: "
+    PS3="Choose a table to operate on: "
+    local tb_name
     select tb_name in ${tables[@]} "Exit"
     do
           case $tb_name in
@@ -141,16 +132,15 @@ list_tables() {
 
 }
 
-
-
 next(){
+  echo $tb_name
   echo""
   prompt_message "What do you want to do next: "
   select next in "Perform Operations" "Exit"
   do
     case $next in
       "Perform Operations")
-        perform_operations $selected_table
+        perform_operations $tb_name
         break
         ;;
       "Exit")
@@ -167,32 +157,29 @@ next(){
 
 perform_operations() {
     clear
-    prompt_message "Select Operation to perform on $selected_table:"
+    prompt_message "Select Operation to perform on $tb_name:"
     echo""
     while true 
     do 
-      PS3="👉 Select the operation you want to perform:  "
+      PS3="Select the operation you want to perform:  "
       select operation in "Select Record" "Insert Record" "Update Record" "Delete Record"  "Exit"
       do
         case $operation in
           "Select Record")
-            select_from_table $selected_table
+            select_from_table $tb_name
             break
             ;;
           "Insert Record")
-            insert_into_table $selected_table
+            insert_into_table $tb_name
             break
-
             ;;
           "Update Record")
-            update_table  $selected_table
+            update_table  $tb_name
             break
-
             ;;
           "Delete Record")
-            delete_from_table $selected_table
+            delete_from_table $tb_name
             break
-
             ;;
           "Exit")
             success_message "Goodbye!"
@@ -208,13 +195,11 @@ perform_operations() {
 
 # Function to drop a table
 drop_table() {
-
     local dataBaseDir="$1"
     for table in "$dataBaseDir"/*.tb
     do
       local tables+=($(basename "$table" .tb))
     done 
-
 
     DB_name=$(basename "$dataBaseDir")
     clear
@@ -227,7 +212,7 @@ drop_table() {
              return  
             ;;
           $option)
-             tb_name=$option
+            local tb_name=$option
               break
               ;;
             *)
@@ -254,6 +239,5 @@ drop_table() {
     done
       error_message "Table Doesn't Exist"
 }
-
 # list_tables
 # create_table 
