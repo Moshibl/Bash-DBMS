@@ -107,7 +107,7 @@ list_tables() {
 
   for table in "$dbTablesDir"/*.tb
   do
-    tables+=($(basename "$table" .tb))
+    local tables+=($(basename "$table" .tb))
   done 
 
 
@@ -208,16 +208,42 @@ perform_operations() {
 
 # Function to drop a table
 drop_table() {
-    if [ -f "$tb_name.tb" ]
-    then
-    echo""
+
+    local dataBaseDir="$1"
+    for table in "$dataBaseDir"/*.tb
+    do
+      local tables+=($(basename "$table" .tb))
+    done 
+
+
+    DB_name=$(basename "$dataBaseDir")
+    clear
+    prompt_message "📜 Tables are available in $DB_name."
+    PS3="🗑️ Select a table from '$DB_name' that you want to drop:"
+    select option in ${tables[@]} "Exit"
+     do
+      case $option in
+          "Exit")
+             return  
+            ;;
+          $option)
+             tb_name=$option
+              break
+              ;;
+            *)
+              error_message "Invalid choice. Please select a table."
+              ;;
+          esac
+     done
+
+    clear
     prompt_message "Are you sure you want to delete $tb_name? "
-      select confirm in "Yes" "No"
-      do
+    select confirm in "Yes" "No"
+    do
       case $confirm in
         "Yes")
           success_message "$tb_name Deleted"
-          rm -f $tb_name.*
+          rm -f "$dataBaseDir"/$tb_name.*
           break
           ;;
         "No")
@@ -225,10 +251,8 @@ drop_table() {
           break
           ;;
       esac
-      done
-    else
+    done
       error_message "Table Doesn't Exist"
-    fi
 }
 
 # list_tables
