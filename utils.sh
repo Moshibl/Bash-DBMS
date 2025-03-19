@@ -6,7 +6,7 @@
 
 # Function to print formatted tables
 print_table() {
-col_count=4
+    col_count=4
     awk -v col_count="$col_count" '
     BEGIN {
         FS=":"
@@ -109,3 +109,4 @@ choose_uniqueness(){
         esac
     done
 }
+

@@ -16,17 +16,24 @@ create_table() {
     # - Validate that the name follows naming conventions
     # - Ensure the table name does not already exist
     # set -x
+    local dataBaseDir=$1
     local tableName=$(read_input "👉 Please enter the name of the table: ")
     # set +x
     tableName=$(validate_name "$tableName")
-    # set -x
-    table_exists $tableName
-    # set +x
+    table_exists "$dataBaseDir"/$tableName
+    checkFileEXists=$?
+    if [[ "$checkFileEXists" -eq 0 ]]
+    then
+      return 0
+    fi
 
     # Step 2: Create an empty data file for storing records and metadata
     # - Store actual table data in a separate `.table` file and columnName in .meta
     # 
-    touch $tableName.tb $tableName.meta
+    local tableDataDir="$dataBaseDir"/$tableName.tb
+    local tableMetaDir="$dataBaseDir"/$tableName.meta
+
+    touch "$tableDataDir" "$tableMetaDir" 
 
     # Step 3: Define table columns
     # - Ask the user how many columns they want
@@ -75,7 +82,7 @@ create_table() {
     # Step 5: Store metadata
     # - Save column definitions, data types, and constraints (UNIQUE, PRIMARY KEY)
     # - Store this information in a `.meta` file inside the database directory
-    printf "%s\n" "${metaData[@]}" > $tableName.meta
+    printf "%s\n" "${metaData[@]}" > "$tableMetaDir"
     
 
     
@@ -88,95 +95,115 @@ create_table() {
 
 
 list_tables() {
-# Function to list all available tables in the currently connected database.
-# After listing the tables, the function will prompt the user with two options:
-# 1) Choose a table to perform record operations (Insert, Select, Delete, Update).
-# 2) Exit back to the database menu.
-# If the user selects a table, they will be navigated to the record operations menu,
-# where they must choose an operation or exit.
-PS3="$DB_name# "
-prompt_message "Select a table from $DB_name:"
-echo""
-select tb_name in $(ls *.tb | sed 's/.tb//') 
-do
-if [ ! -f $tb_name.tb ]; then
-    error_message "Table Doesn't Exist!"
-    return 1
-fi
-  case $tb_name in
-    $tb_name)
-      selected_table=$tb_name
-      PS3="$selected_table# "
-      echo""
-      success_message "Selected Table: $selected_table"
-      print_table
-      next 
-      echo""
-      break
-      ;;
-    *)
-      error_message "Invalid choice. Please select a table."
-      exit
-      ;;
-  esac
-done
+  # Function to list all available tables in the currently connected database.
+  # After listing the tables, the function will prompt the user with two options:
+  # 1) Choose a table to perform record operations (Insert, Select, Delete, Update).
+  # 2) Exit back to the database menu.
+  # If the user selects a table, they will be navigated to the record operations menu,
+  # where they must choose an operation or exit.
+
+  dbTablesDir="$1"
+
+
+  for table in "$dbTablesDir"/*.tb
+  do
+    tables+=($(basename "$table" .tb))
+  done 
+
+
+  DB_name=$(basename "$dbTablesDir")
+  prompt_message "Select a table from $DB_name:"
+  echo""
+  while true
+  do 
+    clear
+    prompt_message "📜 Tables are available in $DB_name."
+    PS3="👉 Choose a table to proceed with your desired operation: "
+    select tb_name in ${tables[@]} "Exit"
+    do
+          case $tb_name in
+            "Exit")
+             break 2
+            ;;
+            $tb_name)
+              clear
+              PS3="$tb_name# "
+              success_message "Selected Table: $tb_name"
+              next 
+              break
+              ;;
+            *)
+              error_message "Invalid choice. Please select a table."
+              ;;
+          esac
+    done
+  done
+
 }
+
+
+
 next(){
-echo""
-prompt_message "What do you want to do next: "
-select next in "Perform Operations" "Exit"
-do
-  case $next in
-    "Perform Operations")
-      perform_operations $selected_table
-      ;;
-    "Exit")
-      success_message "Goodbye"
-      break
-      ;;
-    *)
-      error_message "Invalid choice. Please select an option."
-      ;;
-  esac
-done
+  echo""
+  prompt_message "What do you want to do next: "
+  select next in "Perform Operations" "Exit"
+  do
+    case $next in
+      "Perform Operations")
+        perform_operations $selected_table
+        break
+        ;;
+      "Exit")
+        success_message "Goodbye"
+        break 2
+        ;;
+      *)
+        error_message "Invalid choice. Please select an option."
+        ;;
+    esac
+  done
 }
+
+
 perform_operations() {
-echo""
-prompt_message "Select Operation perform on $selected_table:"
-echo""
-select operation in "Select Record" "Insert Record" "Update Record" "Delete Record"  "Drop Table" "Exit"
-do
-  case $operation in
-    "Select Record")
-      select_from_table $selected_table
-      next
-      ;;
-    "Insert Record")
-      insert_into_table $selected_table
-      next
-      ;;
-    "Update Record")
-      update_table  $selected_table
-      next
-      ;;
-    "Delete Record")
-      delete_from_table $selected_table
-      next
-      ;;
-    "Drop Table")
-      drop_table  $selected_table
-      next
-      ;;
-    "Exit")
-      success_message "Goodbye!"
-      break
-      ;;
-    *)
-      error_message "Invalid choice. Please select an operation."
-      ;;
-  esac
-done
-    true
+    clear
+    prompt_message "Select Operation to perform on $selected_table:"
+    echo""
+    while true 
+    do 
+      PS3="👉 Select the operation you want to perform:  "
+      select operation in "Select Record" "Insert Record" "Update Record" "Delete Record"  "Exit"
+      do
+        case $operation in
+          "Select Record")
+            select_from_table $selected_table
+            break
+            ;;
+          "Insert Record")
+            insert_into_table $selected_table
+            break
+
+            ;;
+          "Update Record")
+            update_table  $selected_table
+            break
+
+            ;;
+          "Delete Record")
+            delete_from_table $selected_table
+            break
+
+            ;;
+          "Exit")
+            success_message "Goodbye!"
+            break 2
+            ;;
+          *)
+            error_message "Invalid choice. Please select an operation."
+            ;;
+        esac
+      done
+    done
 }
 
 # Function to drop a table

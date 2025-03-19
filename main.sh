@@ -4,38 +4,43 @@
 
 # Import necessary scripts
 source db-operations.sh
+SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 # Function to display the main menu
 main_menu() {
-
-    echo "========================================="
-    echo "🎉 Welcome to Bash DBMS! 🎉"
-    echo "📌 Manage your databases easily using this tool."
-    echo "========================================="
-    echo ""
-    PS3="📌 Please choose an option:"
-    select option in "Create DB" "List DBs" "Connect DB" "Drop DB" "Exit"
-    do
-        case $option in
-        "Create DB")
-            create_database 
-        ;;
-        "List DBs")
-            list_databases
-        ;;
-        "Connect DB")
-            connect_database
-        ;;
-        "Drop DB")
-            drop_database
-        ;;
-        "Exit")
-            break
+    while true
+    do  
+        clear
+        prompt_message "🎉 Welcome to Bash DBMS! 🎉"
+        PS3="📌 Please choose an option:"
+        select option in "Create DB" "List DBs" "Connect DB" "Drop DB" "Exit"
+        do
+            case $option in
+            "Create DB")
+                create_database
+                break 
             ;;
-        *)
-        echo "❌ Invalid option. Please try again."
-        ;;
-        esac    
+            "List DBs")
+                list_databases
+                break
+            ;;
+            "Connect DB")
+                connect_database
+                break
+            ;;
+            "Drop DB")
+                drop_database
+                break
+            ;;
+            "Exit")
+                echo "👋 Goodbye!"
+                exit
+                ;;
+            *)
+            echo "❌ Invalid option. Please try again."
+            ;;
+            esac    
+        done
     done
 }
 

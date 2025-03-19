@@ -56,7 +56,9 @@ table_exists()
     while true
     do
         if [[ -f $tableName.tb ]]
-        then
+        then    
+
+                error_message  "❌ A table with this name already exists!"
                 PS3="🔹 Please enter your option: "
                 select  option in "🔄 Choose another name" "❌ Exit"
                 do
@@ -68,13 +70,13 @@ table_exists()
                         break
                         ;;
                     "❌ Exit")
-                        break
+                        return 0
                         ;;
                     esac
                 done
         else 
 
-            break
+            return 1
 
         fi
     done
@@ -96,4 +98,14 @@ validate_column_count()
       fi
 
     done 
+}
+
+
+database_exists()
+{
+    if ! [ -d "$SCRIPT_DIR/Databases" ]
+    then
+        mkdir -p  "$SCRIPT_DIR/Databases"
+    fi
+    echo "$SCRIPT_DIR/Databases"
 }
