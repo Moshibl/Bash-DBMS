@@ -1,0 +1,4 @@
+id:INTEGER:PK
+name:STRING:NULL
+salary:INTEGER:NULL
+

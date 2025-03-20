@@ -26,23 +26,22 @@ validate_name() {
 }
 
 # # Function to validate data types
-# validate_data_type() {
+validate_data_type() {
     
-#     # Ensure input matches the expected type (integer, string, etc.)
-#     metafile=$1
-#     field=$2 
-#     if [[ -f metafile ]]
-#     then 
-#         error_message "It's not a file"
-#     elif
-#         file= $1
-#         while [[ read -p line  ]]
-#         do
-#         done 
-#     then
+    # Ensure input matches the expected type (integer, string, etc.)
+    # if [[ -f metafile ]]
+    # then 
+    #     error_message "It's not a file"
+    # elif
+    #     file= $1
+    #     while [[ read -p line  ]]
+    #     do
+    #     done 
+    # then
     
-#     fi
-# }
+    # fi
+    echo dataType
+}
 
 # # Function to check primary key uniqueness
 validate_primary_key() {

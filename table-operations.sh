@@ -30,9 +30,7 @@ create_table() {
     # Step 2: Create an empty data file for storing records and metadata
     # - Store actual table data in a separate `.table` file and columnName in .meta
     # 
-    local tableDataDir="$dataBaseDir"/$tableName.tb
-    local tableMetaDir="$dataBaseDir"/$tableName.meta
-    touch "$tableDataDir" "$tableMetaDir" 
+
 
     # Step 3: Define table columns
     # - Ask the user how many columns they want
@@ -50,20 +48,17 @@ create_table() {
       columnName=$(validate_name "$columnName")
       local columnDataType=$(choose_data_type)
       local columnUniqueness=$(choose_uniqueness)
-      metaData+=("${columnName}":${columnDataType}:${columnUniqueness})
+      local metaData+=("${columnName}":${columnDataType}:${columnUniqueness})
     done
-
-  
     # Step 4: Ask the user to enter the number corresponding to the primary key column.
     # - Validate the selection:
     #   - Ensure the input is a valid number.
-    clear
     fieldNames=($(printf "%s\n" "${metaData[@]}" | awk -F':' '{print $1}'))
     PS3="🔑 Please choose the column you want to set as the Primary Key (PK): "
     select option in ${fieldNames[@]}
     do
     case $REPLY in 
-     [1-$((${#fieldNames[@]}))])
+     [1-$((${#fieldNames[@]}))])   
         pkIndex=$((REPLY - 1))  
         metaData[pkIndex]=$(echo "${metaData[pkIndex]}" | awk -F':' 'BEGIN{OFS=":"} {$NF="PK"; print $0}')
         break
@@ -77,6 +72,10 @@ create_table() {
     # Step 5: Store metadata
     # - Save column definitions, data types, and constraints (UNIQUE, PRIMARY KEY)
     # - Store this information in a `.meta` file inside the database directory
+    local tableDataDir="$dataBaseDir"/$tableName.tb
+    local tableMetaDir="$dataBaseDir"/$tableName.meta
+    touch "$tableDataDir" "$tableMetaDir" 
+
     printf "%s\n" "${metaData[@]}" > "$tableMetaDir"
     
     # Step 6: Display a success message after table creation

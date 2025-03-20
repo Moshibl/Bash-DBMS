@@ -104,7 +104,6 @@ drop_database() {
 
 list_tablesOperations(){
     local db_dir=$1
-    echo""
     while true
     do      
             # clear

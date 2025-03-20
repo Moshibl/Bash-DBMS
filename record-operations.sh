@@ -20,9 +20,30 @@ insert_into_table() {
     # Validate input types, enforce primary key constraints
     # Append data to the table file
     local tableDir="$1"
-    echo "Insert Record"
 
+    # cc=$(cat "$tableDir".meta)
+    
+    # echo insert fun $cc
+    while read -r line
+    do
+    
+        local fieldName=$( echo $line | cut -d ":" -f1 ) 
+        local fieldDataType=$( echo $line | cut -d ":" -f2 ) 
+        local fieldConstraint=$( echo $line | cut -d ":" -f3 )
+        
+        
+        local fieldValue=$(read_input "Please Enter Value of $fieldName")
+        validate_data_type $fieldDataType $fieldValue
+        
+       
+    
+    
+    done < "$tableDir".meta
+    # for each line i have to ask yoser to insert first field 
+    # then send dataType and value  to vaidate datatype
+    # then check uniquness  
 
+    # in for loop i will use select---->
 }
 
 # Function to update a record
