@@ -5,7 +5,7 @@
 # - Delete Record
 # - Update Record
 
-# source validation.sh  # Import validation functions
+source validation.sh  # Import validation functions
 
 
 # Function to select and display records
@@ -20,25 +20,22 @@ insert_into_table() {
     # Validate input types, enforce primary key constraints
     # Append data to the table file
     local tableDir="$1"
-
-    # cc=$(cat "$tableDir".meta)
+    local fieldNum=0
     
-    # echo insert fun $cc
-    while read -r line
+    exec 3< "$tableDir.meta"
+    while read -r line <&3
     do
-    
+        ((fieldNum++))
         local fieldName=$( echo $line | cut -d ":" -f1 ) 
         local fieldDataType=$( echo $line | cut -d ":" -f2 ) 
         local fieldConstraint=$( echo $line | cut -d ":" -f3 )
-        
-        
-        local fieldValue=$(read_input "Please Enter Value of $fieldName")
-        validate_data_type $fieldDataType $fieldValue
-        
-       
-    
-    
-    done < "$tableDir".meta
+        local fieldValue="$(read_input "Please Enter Value of $fieldName: ")"
+        fieldValue="$(validate_uniqueness_dataType "$tableDir.tb" "$fieldDataType" "$fieldConstraint" "$fieldValue" "$fieldNum")"
+        record+="$fieldValue:" 
+    done
+    exec 3<&-
+    record="${record%:}"
+    echo $record >> "$tableDir.tb"
     # for each line i have to ask yoser to insert first field 
     # then send dataType and value  to vaidate datatype
     # then check uniquness  
