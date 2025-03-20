@@ -19,9 +19,10 @@ select_from_table() {
 insert_into_table() {
     # Validate input types, enforce primary key constraints
     # Append data to the table file
-    echo""
-    echo $1
+    local tableDir="$1"
     echo "Insert Record"
+
+
 }
 
 # Function to update a record

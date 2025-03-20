@@ -106,11 +106,11 @@ list_tables() {
   done 
 
   DB_name=$(basename "$dbTablesDir")
-  prompt_message "Select a table from $DB_name:"
+  prompt_message "📜 Tables are available in $DB_name."
   while true
   do 
-    clear
-    prompt_message "📜 Tables are available in $DB_name."
+    # clear
+    prompt_message "Select a table from $DB_name: "
     PS3="Choose a table to operate on: "
     local tb_name
     select tb_name in ${tables[@]} "Exit"
@@ -123,7 +123,7 @@ list_tables() {
               clear
               PS3="$tb_name# "
               success_message "Selected Table: $tb_name"
-              next 
+              next "$dbTablesDir"/$tb_name
               break
               ;;
             *)
@@ -136,14 +136,13 @@ list_tables() {
 }
 
 next(){
-  echo $tb_name
-  echo""
+  local tableDir=$1
   prompt_message "What do you want to do next: "
   select next in "Perform Operations" "Exit"
   do
     case $next in
       "Perform Operations")
-        perform_operations $tb_name
+        perform_operations "$tableDir"
         break
         ;;
       "Exit")
@@ -159,29 +158,27 @@ next(){
 
 
 perform_operations() {
-    clear
-    prompt_message "Select Operation to perform on $tb_name:"
-    echo""
+    local tableDir="$1"
     while true 
     do 
-      PS3="Select the operation you want to perform:  "
+      PS3="Select the operation you want to perform on $tb_name:  "
       select operation in "Select Record" "Insert Record" "Update Record" "Delete Record"  "Exit"
       do
         case $operation in
           "Select Record")
-            select_from_table $tb_name
+            select_from_table "$tableDir"
             break
             ;;
           "Insert Record")
-            insert_into_table $tb_name
+            insert_into_table "$tableDir"
             break
             ;;
           "Update Record")
-            update_table  $tb_name
+            update_table  "$tableDir"
             break
             ;;
           "Delete Record")
-            delete_from_table $tb_name
+            delete_from_table "$tableDir"
             break
             ;;
           "Exit")
