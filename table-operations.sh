@@ -93,17 +93,20 @@ list_tables() {
   # 2) Exit back to the database menu.
   # If the user selects a table, they will be navigated to the record operations menu,
   # where they must choose an operation or exit.
-
   dbTablesDir="$1"
+  if [[ -z $(ls -A "$dbTablesDir") ]]
+  then
+    error_message "No tables found in this database"
+    return 
+  fi
+
   for table in "$dbTablesDir"/*.tb
   do
     local tables+=($(basename "$table" .tb))
   done 
 
-
   DB_name=$(basename "$dbTablesDir")
   prompt_message "Select a table from $DB_name:"
-  echo""
   while true
   do 
     clear

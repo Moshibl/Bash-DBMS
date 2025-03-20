@@ -44,7 +44,6 @@ connect_database() {
     local databaseDire=$(database_exists) 
     local current_PS3=$PS3
 
-    prompt_message "Select a Database: "
     while true
     do
         clear
@@ -105,11 +104,10 @@ drop_database() {
 
 list_tablesOperations(){
     local db_dir=$1
-    prompt_message "📌 Please choose an operation to perform on the database:"
     echo""
     while true
     do      
-            clear
+            # clear
             prompt_message "⚡ Please Choose the operation to perform on $DB_name:"
             PS3="Please Choose the operation: "
             select operation in "Create Table" "List Tables" "Drop Table" "Exit"
