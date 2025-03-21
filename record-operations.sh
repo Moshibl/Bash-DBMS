@@ -38,6 +38,7 @@ insert_into_table() {
     # Append data to the table file
     local tableDir="$1"
     local fieldNum=0
+     local record=""
     
     exec 3< "$tableDir.meta"
     while read -r line <&3
@@ -46,13 +47,15 @@ insert_into_table() {
         local fieldName=$( echo $line | cut -d ":" -f1 ) 
         local fieldDataType=$( echo $line | cut -d ":" -f2 ) 
         local fieldConstraint=$( echo $line | cut -d ":" -f3 )
-        local fieldValue="$(read_input "Please Enter Value of $fieldName: ")"
+        local fieldValue
+        fieldValue="$(read_input "Please Enter Value of $fieldName: ")"
         fieldValue="$(validate_uniqueness_dataType "$tableDir.tb" "$fieldDataType" "$fieldConstraint" "$fieldValue" "$fieldNum")"
-        local record+="$fieldValue:" 
+        record+="$fieldValue:" 
     done
     exec 3<&-
     record="${record%:}"
-    echo $record >> "$tableDir.tb"
+    echo "$record" >> "$tableDir.tb"
+    echo "✅ Record inserted successfully: [$record]"
 
 }
 
@@ -65,9 +68,11 @@ update_table() {
     case $option in
     "Update one record based on PK")
         update_record_by_pk "$tableDir"
+        break
     ;;
     "Updete all occurrences")
         batch_update_by_value "$tableDir"
+        break
     ;;
     esac
     done
@@ -76,17 +81,23 @@ update_table() {
 }
 update_record_by_pk()
 {
-    # local tableDir="$1"
-    local fieldNum=$(grep -in "PK" Writers.meta | cut -d ":" -f1)
+    local tableDir="$1"
+    local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
     local PK_oldValue=$(read_input "Please enter the PK of the record you want to update 🔑: ")
 
-    # ---------> validate this PK exists
 
     
-    record=$(awk -F":" -v fieldNum="$fieldNum" -v PK_oldValue="$PK_oldValue"  '$fieldNum==PK_oldValue {print NR":"$0}' "Writers.tb") 
+    record=$(awk -F":" -v fieldNum="$fieldNum" -v PK_oldValue="$PK_oldValue"  '$fieldNum==PK_oldValue {print NR":"$0}' "$tableDir.tb") 
+    # ---------> validate this record exists
+    if [[ -z "$record" ]]
+    then
+        error_message "No record found with PK = $PK_oldValue ❌"
+        return 
+    fi
+
     lineNum=$(echo $record | cut -d ":" -f1)
     
-    fieldsNames+=($(awk -F":" '{print $1}' "Writers.meta"))
+    fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
 
 
     PS3="Enter the number of the column you want to update: "
@@ -94,17 +105,19 @@ update_record_by_pk()
     do
         case $option in
             $option)
-                fieldNum=$(grep -in "$option" Writers.meta | cut -d ":" -f1)
-                fieldDataType=$(grep -n "$option" Writers.meta | cut -d ":" -f2)
-                oldValue=$(echo "$record" | cut -d ":" -f"$((fieldNum + 1))")
-                local newValue=$(read_input "Please enter new Value you want to update 🔑: ")
-                sed -i "${lineNum}s|$oldValue|$newValue|" Writers.tb
+                fieldNum=$(grep -in "$option" "$tableDir.meta" | cut -d ":" -f1)
+                local fieldDataType=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f2 )
+                local fieldConstraint=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f3 )
+                oldValue=$(echo "$record" | cut -d ":" -f"$(($fieldNum + 1))")
+                local newValue=$(read_input "Please enter new Value you want to update 📝: ")
+                newValue="$(validate_uniqueness_dataType "$tableDir.tb" "$fieldDataType" "$fieldConstraint" "$newValue" "$fieldNum")"
+                sed -i "${lineNum}s|$oldValue|$newValue|" "$tableDir.tb"
                 break
             ;;
-            # ---> validate dataType to new value, constarint before Updating
-            # 
+     
         esac
     done
+    success_message "✅ Successfully updated '$oldValue' to '$newValue' in line $lineNum!"
 
 }
 

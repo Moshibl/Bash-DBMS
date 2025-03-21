@@ -112,7 +112,7 @@ validate_uniqueness_dataType() {
                         if [[ $value == $fieldValue ]]
                         then
                             error_message "❌ The value '$fieldValue' already exists in the database." >&2
-                            fieldValue=$(read_input "Enter a valid $fieldName ")
+                            fieldValue=$(read_input "Enter a valid value ")
                             fieldValue="$(validate_data_type "$fieldDataType" "$fieldValue")"
                             duplicate_found=true
                             break
