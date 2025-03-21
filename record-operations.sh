@@ -68,7 +68,7 @@ insert_into_table() {
     # Append data to the table file
     local tableDir="$1"
     local fieldNum=0
-     local record=""
+    local record=""
     
     exec 3< "$tableDir.meta"
     while read -r line <&3
@@ -139,7 +139,7 @@ update_record_by_pk()
     # Ask the user for a new value and validate it based on datatype and constraints
     # Perform the update in the database using `sed`
 
-    fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
+    local fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
     PS3="Enter the number of the column you want to update: "
     select option in "${fieldsNames[@]}"
     do
@@ -233,20 +233,35 @@ select_by_key() {
         return
     fi
     enter=$(read_input "Enter the value of the PK you want to select by: ")
-    awk -F: -v key="$key" -v search_value="$enter" '$key == search_value' "$tableDir.tb"
+    awk -F: -v key="$key" -v search_value="$enter" '$key == search_value {print $0}' "$tableDir.tb"
     echo ""
 }
 
 
 select_column() {
-    local col=$(read_input "Choose the column number")
-    awk -F: -v col="$col" '
-    {
-        if (col > 0 && col <= NF) 
-            print $col
-        else 
-            print "Invalid column number"
-    }' "$tableDir.tb"
-}
+ 
+    if [ ! -f "engineers.meta" ]; then
+        error_message "Metadata file not found!"
+        return 1
+    fi
+    columns=($(awk -F: '{print $1}' engineers.meta))
+    echo "mytest" ${columns[@]}
 
+    if [ ${#columns[@]} -eq 0 ]; then
+        error_message "No columns found in metadata!"
+        return 1
+    fi
+
+    echo "Select a column:"
+    select option in "${columns[@]}"
+    do
+        if [[ -n "$option"  ]]
+        then 
+            local selected_col=$(grep -in "$option" "engineers.meta" | cut -d: -f1)
+            local match=$(awk -F: -v selected_col=$selected_col '{  print $selected_col; print "" }' engineers.tb)
+            echo $match
+        fi
+    done
+}
 # batch_update_by_value
+select_column

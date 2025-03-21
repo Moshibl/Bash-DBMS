@@ -5,6 +5,9 @@
 # - Displaying messages
 
 # Function to print formatted tables
+
+# local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
+# local match=$(awk -F: -v selected_col=$selected_col ' {print $selected_col} ' $tableDir.tb)
 print_table() {
     col_count=4
     awk -v col_count="$col_count" '
