@@ -219,7 +219,7 @@ select_by_value(){
     echo""
     term=$(read_input "Enter The value you want to select: ")
     echo""
-    grep -i $term $tableDir.tb
+    grep -i $term "$tableDir.tb"
     echo""
 }
 
