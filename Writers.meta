@@ -1,0 +1,3 @@
+id:INTEGER:PK
+name:STRING:NULL
+birthDate:DATE:NULL
