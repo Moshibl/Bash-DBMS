@@ -212,18 +212,16 @@ drop_table() {
     PS3="🗑️ Select a table from '$DB_name' that you want to drop:"
     select option in ${tables[@]} "Exit ❌"
      do
-      case $option in
-          "Exit ❌")
-             return  
-            ;;
-          $option)
-            local tb_name=$option
-              break
-              ;;
-            *)
-              error_message "Invalid choice. Please select a table."
-              ;;
-          esac
+     if [[ $option == "Exit ❌" ]]
+     then
+        return
+     elif [[ -n $option ]]
+     then
+          local tb_name=$option
+          break
+      else 
+       error_message "Invalid choice. Please select a table."   
+     fi
      done
 
     clear
