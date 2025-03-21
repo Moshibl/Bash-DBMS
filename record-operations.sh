@@ -48,7 +48,7 @@ insert_into_table() {
         local fieldConstraint=$( echo $line | cut -d ":" -f3 )
         local fieldValue="$(read_input "Please Enter Value of $fieldName: ")"
         fieldValue="$(validate_uniqueness_dataType "$tableDir.tb" "$fieldDataType" "$fieldConstraint" "$fieldValue" "$fieldNum")"
-        record+="$fieldValue:" 
+        local record+="$fieldValue:" 
     done
     exec 3<&-
     record="${record%:}"
@@ -95,6 +95,7 @@ update_record_by_pk()
         case $option in
             $option)
                 fieldNum=$(grep -in "$option" Writers.meta | cut -d ":" -f1)
+                fieldDataType=$(grep -n "$option" Writers.meta | cut -d ":" -f2)
                 oldValue=$(echo "$record" | cut -d ":" -f"$((fieldNum + 1))")
                 local newValue=$(read_input "Please enter new Value you want to update 🔑: ")
                 sed -i "${lineNum}s|$oldValue|$newValue|" Writers.tb
@@ -186,4 +187,4 @@ select_column(){
 }
 
 
-update_record_by_pk
+# update_record_by_pk
