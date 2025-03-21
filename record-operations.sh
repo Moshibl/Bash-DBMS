@@ -93,14 +93,14 @@ insert_into_table() {
 update_table() {
     # Modify an existing record while keeping data integrity
     local tableDir="$1"
-    select option in "Update one record based on PK" "Updete all occurrences"
+    select option in "Update one record based on PK 🔑" "Updete all occurrences 🔄"
     do
     case $option in
-    "Update one record based on PK")
+    "Update one record based on PK 🔑")
         update_record_by_pk "$tableDir"
         break
     ;;
-    "Updete all occurrences")
+    "Updete all occurrences 🔄")
         batch_update_by_value "$tableDir"
         break
     ;;
@@ -109,17 +109,23 @@ update_table() {
     
 
 }
+
 update_record_by_pk()
 {
     local tableDir="$1"
+    # Retrieves the entire line along with its line number from the metadata file.
+    # Extracts only the line number to determine the field position. 
     local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
+    #  ask user about PK
     local PK_oldValue=$(read_input "Please enter the PK of the record you want to update 🔑: ")
 
 
-    
+    # Retrieve the entire record from the database table.
+    # Searches for the record where PK matches the given value.
+    # Outputs the matching record along with its line number in the format: "lineNum:record
     record=$(awk -F":" -v fieldNum="$fieldNum" -v PK_oldValue="$PK_oldValue"  '$fieldNum==PK_oldValue {print NR":"$0}' "$tableDir.tb") 
-    # ---------> validate this record exists
-    if [[ -z "$record" ]]
+   
+   if [[ -z "$record" ]]
     then
         error_message "No record found with PK = $PK_oldValue ❌"
         return 
@@ -127,9 +133,13 @@ update_record_by_pk()
 
     lineNum=$(echo $record | cut -d ":" -f1)
     
+    # Prompt the user to select a column to update
+    # Retrieve the selected column's metadata (name, datatype, constraints)
+    #  Extract the old value from the selected record
+    # Ask the user for a new value and validate it based on datatype and constraints
+    # Perform the update in the database using `sed`
+
     fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
-
-
     PS3="Enter the number of the column you want to update: "
     select option in "${fieldsNames[@]}"
     do
@@ -150,14 +160,44 @@ update_record_by_pk()
     success_message "✅ Successfully updated '$oldValue' to '$newValue' in line $lineNum!"
 
 }
+batch_update_by_value()
+{
+    local tableDir="$1"
+    local fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
+    PS3="Enter the number of the column you want to update: "
+    select option in "${fieldsNames[@]}"
+    do
+            if [[ -n "$option" ]]; then 
+                local fieldNum=$(grep -in "$option" "$tableDir.meta" | cut -d ":" -f1)
+                local fieldDataType=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f2 )
+                local fieldConstraint=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f3 )
+                local oldValue=$(read_input "Please enter old Value you want to update 📝: ")
 
-# --> search about PK line 
-# --> ask for column that want to update
-# --> ask about old value
-# --> search in file for this value 
-# --> ask about new value for this column    
-# --> check validation_dataType and uniqueness
-# --> updata this value 
+                oldValueMatching=$(awk -F":" -v fieldNum=$fieldNum -v oldValue=$oldValue '$fieldNum==oldValue {print $fieldNum}' "$tableDir.tb")
+                if [[ -z $oldValueMatching ]]
+                then
+                    error_message "No record found with $option = $oldValue ❌"
+                    return
+
+                fi
+                local newValue=$(read_input "Please enter new Value you want to update 📝: ")
+                newValue="$(validate_uniqueness_dataType "$tableDir.tb" "$fieldDataType" "$fieldConstraint" "$newValue" "$fieldNum")"
+                awk -F":" -v fieldNum=$fieldNum -v oldValue=$oldValue -v newValue="$newValue" '{
+                 OFS=":";
+                 if($fieldNum==oldValue) $fieldNum=newValue;
+                 print}' "$tableDir.tb" > temp && mv temp "$tableDir.tb"
+ 
+                
+                break
+
+            else
+                error_message "❌ Invalid choice! Please select a valid column number."
+            fi
+     
+    done
+
+}
+
 
 # Function to delete a specific record
 delete_from_table() {
@@ -208,3 +248,5 @@ select_column() {
             print "Invalid column number"
     }' "$tableDir.tb"
 }
+
+# batch_update_by_value
