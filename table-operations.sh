@@ -92,11 +92,11 @@ list_tables() {
   # 2) Exit back to the database menu.
   # If the user selects a table, they will be navigated to the record operations menu,
   # where they must choose an operation or exit.
-  dbTablesDir="$1"
-  if [[ -z $(ls -A "$dbTablesDir") ]]
+  local dbTablesDir="$1"
+  if [[ -z $(ls -A "$dbTablesDir"/*.tb 2>/dev/null) ]]
   then
-    error_message "No tables found in this database"
-    return 
+      error_message "No tables found in this database"
+      return 
   fi
 
   for table in "$dbTablesDir"/*.tb
@@ -161,22 +161,22 @@ perform_operations() {
     while true 
     do 
       PS3="Select the operation you want to perform on $tb_name:  "
-      select operation in "Select Record" "Insert Record" "Update Record" "Delete Record"  "Exit"
+      select operation in "Select" "Insert" "Update" "Delete"  "Exit"
       do
         case $operation in
-          "Select Record")
+          "Select")
             select_from_table "$tableDir"
             break
             ;;
-          "Insert Record")
+          "Insert")
             insert_into_table "$tableDir"
             break
             ;;
-          "Update Record")
+          "Update")
             update_table  "$tableDir"
             break
             ;;
-          "Delete Record")
+          "Delete")
             delete_from_table "$tableDir"
             break
             ;;
@@ -194,20 +194,26 @@ perform_operations() {
 
 # Function to drop a table
 drop_table() {
-    local dataBaseDir="$1"
-    for table in "$dataBaseDir"/*.tb
+    local dbTablesDir="$1"
+    if [[ -z $(ls -A "$dbTablesDir"/*.tb 2>/dev/null) ]]
+    then
+        error_message "No tables found in this database"
+        return 
+    fi
+    local dbTablesDir="$1"
+    for table in "$dbTablesDir"/*.tb
     do
       local tables+=($(basename "$table" .tb))
     done 
 
-    DB_name=$(basename "$dataBaseDir")
+    DB_name=$(basename "$dbTablesDir")
     clear
-    prompt_message "📜 Tables are available in $DB_name."
+    prompt_message "Tables are available in $DB_name.📜"
     PS3="🗑️ Select a table from '$DB_name' that you want to drop:"
-    select option in ${tables[@]} "Exit"
+    select option in ${tables[@]} "Exit ❌"
      do
       case $option in
-          "Exit")
+          "Exit ❌")
              return  
             ;;
           $option)
@@ -227,7 +233,7 @@ drop_table() {
       case $confirm in
         "Yes")
           success_message "$tb_name Deleted"
-          rm -f "$dataBaseDir"/$tb_name.*
+          rm -f "$dbTablesDir"/$tb_name.*
           break
           ;;
         "No")
@@ -236,7 +242,6 @@ drop_table() {
           ;;
       esac
     done
-      error_message "Table Doesn't Exist"
 }
 # list_tables
 # create_table 

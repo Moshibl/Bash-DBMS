@@ -6,14 +6,31 @@
 # - Update Record
 
 # source validation.sh  # Import validation functions
+source utils.sh
 
 
 # Function to select and display records
 select_from_table() {
-    # Read and format table data for display
-    echo""
-    echo $1
-    echo "Select Record"
+
+    local tableDir="$1"
+    select operation in "Select All" "Select Record" "Select Column"
+    do
+        case  $operation in 
+            "Select All")
+                print_table
+                break
+                ;;
+            "Select Record")
+                prompt_message "Choose The Select type: " 
+                select_type
+                break
+                ;;
+            "Select Column")
+                select_column
+                break
+                ;;
+        esac
+    done           
 }
 # Function to insert a new record
 insert_into_table() {
@@ -63,4 +80,63 @@ delete_from_table() {
 }
 
 
+select_type(){ 
+    select type in "Select by Key" "Select by Value" "Go Back"
+    do
+        case $type in 
+            "Select by Key")
+                select_by_key
+                break
+                ;;
+            "Select by Value")
+                select_by_value
+                break
+                ;;
+            "Go Back")
+                break
+                ;;
+            *)
+                error_message "Invalid Choice, please Try again"
+                ;;
+        esac
+    done
+}
 
+select_by_value(){
+    echo""
+    term=$(read_input "Enter The value you want to search by: ")
+    echo""
+    grep -i $term $tableDir.tb
+    echo""
+}
+
+select_by_key() {
+    echo ""
+    key=$(grep -in "PK" "$tableDir.meta" | cut -d: -f1)
+
+    if [ -z "$key" ]; then
+        error_message "No primary key found in metadata!"
+        return
+    fi
+    enter=$(read_input "Enter the value of the PK you want to search by: ")
+    awk -F: -v key="$key" -v search_value="$enter" '$key == search_value' "$tableDir.tb"
+    echo ""
+}
+
+
+select_column(){
+    
+    select col in $tableDir.tb
+    do
+        case $col in
+            $tableDir)
+            cut -d : -f $tableDir
+            break
+            ;;
+            *)
+            error_message "Invalid choice, please try again"
+            break
+            ;;
+        esac
+    done
+}

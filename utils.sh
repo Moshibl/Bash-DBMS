@@ -39,7 +39,7 @@ print_table() {
     END {
         print LS
     }
-    ' $tb_name.meta $tb_name.tb
+    ' $tableDir.meta $tableDir.tb
 }
 # # Function to handle user input
 read_input() {

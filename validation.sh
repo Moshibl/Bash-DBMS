@@ -57,9 +57,9 @@ table_exists()
         if [[ -f $tableName.tb ]]
         then    
 
-                error_message  "❌ A table with this name already exists!"
+                error_message  "A table with this name already exists! ❌"
                 PS3="🔹 Please enter your option: "
-                select  option in "🔄 Choose another name" "❌ Exit"
+                select  option in "🔄 Choose another name" "Exit ❌"
                 do
                     case $option in
                     "🔄 Choose another name")
@@ -68,7 +68,7 @@ table_exists()
                         validate_name $tableName
                         break
                         ;;
-                    "❌ Exit")
+                    "Exit ❌")
                         return 0
                         ;;
                     esac
