@@ -11,27 +11,57 @@ source utils.sh
 
 # Function to select and display records
 select_from_table() {
-
     local tableDir="$1"
-    select operation in "Select All" "Select Record" "Select Column"
+
+    if [ ! -s "$tableDir.tb" ]; then
+        error_message "This table is still empty or has no records. ❌"
+        prompt_message "Do you want to add records now? "
+        select choice in "Yes" "No"
+            do 
+                case $choice in 
+                    "Yes")
+                        insert_into_table $tableDir.tb
+                        break
+                        ;;
+                    "No")
+                        return
+                        ;;
+                    *)
+                        error_message "Invalid Choice"
+                        ;;
+                esac
+            done
+    fi
+
+    select operation in "Select All" "Select Record by Value" "Select Record by Key" "Select Column" "Go Back"
     do
-        case  $operation in 
+        case $operation in 
             "Select All")
                 print_table
                 break
                 ;;
-            "Select Record")
-                prompt_message "Choose The Select type: " 
-                select_type
+            "Select Record by Value")
+                select_by_value
+                break
+                ;;
+            "Select Record by Key")
+                select_by_key
                 break
                 ;;
             "Select Column")
                 select_column
                 break
                 ;;
+            "Go Back")
+                break
+                ;;
+            *)
+                error_message "Invalid Choice, please Try again"
+                ;;
         esac
     done           
 }
+
 # Function to insert a new record
 insert_into_table() {
     # Validate input types, enforce primary key constraints
@@ -131,38 +161,24 @@ update_record_by_pk()
 
 # Function to delete a specific record
 delete_from_table() {
-    # Locate and remove a record based on conditions
-    echo""
-    echo $1
-    echo "Delete Record"
+    local tableDir="$1"
+    local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
+    local PK_oldValue=$(read_input "Please enter the PK of the record you want to delete 🔑: ")
+    local record=$(awk -F":" -v fieldNum="$fieldNum" -v PK_oldValue="$PK_oldValue" \
+        '$fieldNum == PK_oldValue { print NR }' "$tableDir.tb")
+
+    if [[ -z "$record" ]]; then
+        error_message "No record found with PK = $PK_oldValue ❌"
+        return
+    fi
+    sed -i "${record}d" "$tableDir.tb"
+    success_message "Record with PK = $PK_oldValue deleted successfully ✅"
 }
 
-
-select_type(){ 
-    select type in "Select by Key" "Select by Value" "Go Back"
-    do
-        case $type in 
-            "Select by Key")
-                select_by_key
-                break
-                ;;
-            "Select by Value")
-                select_by_value
-                break
-                ;;
-            "Go Back")
-                break
-                ;;
-            *)
-                error_message "Invalid Choice, please Try again"
-                ;;
-        esac
-    done
-}
 
 select_by_value(){
     echo""
-    term=$(read_input "Enter The value you want to search by: ")
+    term=$(read_input "Enter The value you want to select: ")
     echo""
     grep -i $term $tableDir.tb
     echo""
@@ -170,34 +186,25 @@ select_by_value(){
 
 select_by_key() {
     echo ""
-    key=$(grep -in "PK" "$tableDir.meta" | cut -d: -f1)
+    local key=$(grep -in "PK" "$tableDir.meta" | cut -d: -f1)
 
     if [ -z "$key" ]; then
         error_message "No primary key found in metadata!"
         return
     fi
-    enter=$(read_input "Enter the value of the PK you want to search by: ")
+    enter=$(read_input "Enter the value of the PK you want to select by: ")
     awk -F: -v key="$key" -v search_value="$enter" '$key == search_value' "$tableDir.tb"
     echo ""
 }
 
 
-select_column(){
-    
-    select col in $tableDir.tb
-    do
-        case $col in
-            $tableDir)
-            cut -d : -f $tableDir
-            break
-            ;;
-            *)
-            error_message "Invalid choice, please try again"
-            break
-            ;;
-        esac
-    done
+select_column() {
+    local col=$(read_input "Choose the column number")
+    awk -F: -v col="$col" '
+    {
+        if (col > 0 && col <= NF) 
+            print $col
+        else 
+            print "Invalid column number"
+    }' "$tableDir.tb"
 }
-
-
-# update_record_by_pk
