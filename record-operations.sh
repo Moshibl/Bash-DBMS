@@ -199,7 +199,6 @@ batch_update_by_value()
 }
 
 
-# Function to delete a specific record
 delete_from_table() {
     local tableDir="$1"
     local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
@@ -239,12 +238,11 @@ select_by_key() {
 
 
 select_column() {
- 
-    if [ ! -f "engineers.meta" ]; then
+    if [ ! -f "$tableDir.meta" ]; then
         error_message "Metadata file not found!"
         return 1
     fi
-    columns=($(awk -F: '{print $1}' engineers.meta))
+    columns=($(awk -F: '{print $1}' $tableDir.meta))
     echo "mytest" ${columns[@]}
 
     if [ ${#columns[@]} -eq 0 ]; then
@@ -257,11 +255,10 @@ select_column() {
     do
         if [[ -n "$option"  ]]
         then 
-            local selected_col=$(grep -in "$option" "engineers.meta" | cut -d: -f1)
-            local match=$(awk -F: -v selected_col=$selected_col '{  print $selected_col; print "" }' engineers.tb)
-            echo $match
+            local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
+            awk -F: -v selected_col=$selected_col '{ print $selected_col }' $tableDir.tb
         fi
     done
 }
 # batch_update_by_value
-select_column
+# select_column
