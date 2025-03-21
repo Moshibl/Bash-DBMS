@@ -83,3 +83,24 @@
     read key old_val new_val && sed -i "/^$key:/s/$old_val/$new_val/" "$table_name.data"
     ```
 
+
+
+<!-- In update Function -->
+1- update based on PK
+--> ask user he user to enter PK
+--> and ask user about column for the column name they want to update
+--> then the new value for that column
+--> update this column with new value
+
+
+2-update Batch baesd on matching
+--> ask user about column name to search within
+--> ask for  old value  that needs to be replaced
+--> ask user for new value to update all matching records
+--> search for all occurrences of the old value 
+--> update all matching with new value
+
+
+
+
+

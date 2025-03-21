@@ -45,7 +45,7 @@ print_table() {
 read_input() {
     local message=$1
     read -r -p "$message" name
-    echo $name 
+    echo "$name" 
 }
  # Function to display error messages
 error_message() {

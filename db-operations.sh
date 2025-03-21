@@ -43,10 +43,8 @@ connect_database() {
     # Allow user to choose a DB and navigate to table operations
     local databaseDire=$(database_exists) 
     local current_PS3=$PS3
-
     while true
     do
-        clear
         prompt_message "Select a Database: "
         PS3="DBMS# "
         select DB_name in $(ls "$databaseDire") "Exit"
