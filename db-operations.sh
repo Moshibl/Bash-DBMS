@@ -38,36 +38,49 @@ list_databases() {
     fi
 }
 
-# Function to connect to a database
+
 connect_database() {
-    # Allow user to choose a DB and navigate to table operations
-    local databaseDire=$(database_exists) 
     local current_PS3=$PS3
-    while true
-    do
-        prompt_message "Select a Database: "
+    local databaseDire=$(database_exists) 
+    if [ ! -d "$databaseDire" ]; then
+        error_message "Databases directory not found!"
+        return 1
+    fi
+
+    local databases=($(ls "$databaseDire"))
+    if [ ${#databases[@]} -eq 0 ]; then
+        error_message "No databases found!"
+        return 1
+    fi
+
+    while true; do
+        prompt_message "Select a Database:"
         PS3="DBMS# "
-        select DB_name in $(ls "$databaseDire") "Exit"
-        do
+        select DB_name in "${databases[@]}" "Exit"; do
             case $DB_name in
                 "Exit")
-                    break 2
+                    PS3=$current_PS3
+                    return
                     ;;
-                $DB_name)
-                    PS3="$DB_name# "
-                    success_message "Connected to $DB_name!"
-                    list_tablesOperations "$databaseDire/$DB_name"
+                "")
+                    error_message "Invalid selection. Please try again."
                     break
                     ;;
                 *)
-                    error_message "Invalid selection"
+                    if [ -d "$databaseDire/$DB_name" ]; then
+                        PS3="$DB_name# "
+                        success_message "Connected to $DB_name!"
+                        list_tablesOperations "$databaseDire/$DB_name"
+                    else
+                        error_message "Database not found!"
+                    fi
+                    break
                     ;;
             esac
         done
     done
-
-
 }
+
 
 # Function to drop a database
 drop_database() {
