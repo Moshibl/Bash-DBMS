@@ -9,15 +9,17 @@
 # local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
 # local match=$(awk -F: -v selected_col=$selected_col ' {print $selected_col} ' $tableDir.tb)
 print_table() {
-    col_count=4
+
+    col_count=$(wc -l $tableDir.meta)
+    
     awk -v col_count="$col_count" '
     BEGIN {
         FS=":"
         OFS=" | "
-        column_width = 10
+        column_width = 12
         LS = "+"
         for (j = 1; j <= col_count; j++) {
-            LS = LS sprintf("%-*s+", column_width, "------------") 
+            LS = LS sprintf("%-*s+", column_width, "--------------") 
         }
     }
 
@@ -42,7 +44,8 @@ print_table() {
     END {
         print LS
     }
-    ' $tableDir.meta $tableDir.tb
+    ' "$tableDir.header" "$tableDir.tb" 
+    rm $tableDir.header
 }
 # # Function to handle user input
 read_input() {

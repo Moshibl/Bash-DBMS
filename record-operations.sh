@@ -12,7 +12,7 @@ source utils.sh
 # Function to select and display records
 select_from_table() {
     local tableDir="$1"
-
+    dbdir=$(dirname $tableDir)
     if [ ! -s "$tableDir.tb" ]; then
         error_message "This table is still empty or has no records. ❌"
         prompt_message "Do you want to add records now? "
@@ -20,7 +20,7 @@ select_from_table() {
             do 
                 case $choice in 
                     "Yes")
-                        insert_into_table $tableDir.tb
+                        insert_into_table $tableDir
                         break
                         ;;
                     "No")
@@ -37,6 +37,7 @@ select_from_table() {
     do
         case $operation in 
             "Select All")
+                awk -F: '{ printf "%s%s", (NR==1 ? "" : ":"), $1 } END { print "" }' $tableDir.meta > $dbdir/$tb_name.header
                 print_table
                 break
                 ;;
@@ -69,7 +70,7 @@ insert_into_table() {
     local tableDir="$1"
     local fieldNum=0
     local record=""
-    
+
     exec 3< "$tableDir.meta"
     while read -r line <&3
     do
@@ -216,12 +217,30 @@ delete_from_table() {
 
 
 select_by_value(){
-    echo""
-    term=$(read_input "Enter The value you want to select: ")
-    echo""
-    grep -i $term $tableDir.tb
-    echo""
+    term=$(read_input "Enter the value you want to select: ")
+    echo ""
+
+    awk -F: -v term="$term" '
+    BEGIN{
+        found=0
+        }
+        {
+        for (i = 1; i <= NF; i++) {
+            if ($i == term) {
+                print $0
+                found=1
+                }
+            }
+        }
+    END{
+        if (found == 0) 
+        print "Value not found" 
+        }
+    ' "$tableDir.tb"
+
+    echo ""
 }
+
 
 select_by_key() {
     echo ""
