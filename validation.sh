@@ -43,33 +43,33 @@ validate_data_type() {
         "INTEGER")
             if  [[ "$fieldValue" =~ ^[0-9]+$ && "$fieldValue" -ge 0  ]]
             then
-                success_message "✅ $fieldValue accepted" >&2
+                success_message "Entry $fieldValue Valid ✅" >&2
                 break
             else
-                error_message "❌ Invalid input! Please enter a positive integer ">&2
+                error_message "Invalid input! Please enter a positive integer ❌ ">&2
             fi
             ;;
         "STRING")
             if  [[ "$fieldValue" =~ ^[A-Za-z\ ]+$ ]]
             then
-                success_message "✅ $fieldValue accepted">&2
+                success_message "Entry $fieldValue accepted ✅">&2
                 break
             else
-                error_message "❌ Invalid: '$fieldValue' contains numbers or special characters.">&2
+                error_message "Invalid: '$fieldValue' contains numbers or special characters.❌">&2
             fi
             ;;
         "DATE")
             if  [[ "$fieldValue" =~ ^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$ ]]
             then
-                success_message "✅ Date accepted: $fieldValue">&2
+                success_message "Date accepted: $fieldValue ✅">&2
                 break
             else
-                error_message "❌ Invalid date format! Please enter in YYYY-MM-DD format.">&2
+                error_message "Invalid date format! Please enter in YYYY-MM-DD format.❌">&2
                 
             fi
         ;;
         *)
-                error_message "❌ Unknown data type: $fieldDataType"
+                error_message "Unknown data type: $fieldDataType ❌"
         esac
         fieldValue=$(read_input "Enter a valid $fieldName ")
     done
@@ -111,7 +111,7 @@ validate_uniqueness_dataType() {
 
                         if [[ $value == $fieldValue ]]
                         then
-                            error_message "❌ The value '$fieldValue' already exists in the database." >&2
+                            error_message "The value '$fieldValue' already exists in the database. ❌" >&2
                             fieldValue=$(read_input "Enter a valid value ")
                             fieldValue="$(validate_data_type "$fieldDataType" "$fieldValue")"
                             duplicate_found=true
@@ -169,11 +169,11 @@ validate_column_count()
     do
       if ! [[ $nOfColumns =~  ^[1-9][0-9]*$  ]]
       then
-        error_message "❌ Invalid input!" >&2
+        error_message "Invalid input! ❌" >&2
         nOfColumns=$(read_input "📊  Please enter a positive number for the number of columns : ")
 
       else
-        success_message "✅ Success! The number of columns has been accepted." >&2
+        success_message "Success! The number of columns has been accepted. ✅" >&2
         echo $nOfColumns
         break
       fi

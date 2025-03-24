@@ -16,6 +16,7 @@ create_table() {
     # - Validate that the name follows naming conventions
     # - Ensure the table name does not already exist
     # set -x
+    clear
     local dataBaseDir=$1
     local tableName=$(read_input "Please enter the name of the table: ")
     # set +x
@@ -86,6 +87,7 @@ create_table() {
 
 
 list_tables() {
+  clear
   # Function to list all available tables in the currently connected database.
   # After listing the tables, the function will prompt the user with two options:
   # 1) Choose a table to perform record operations (Insert, Select, Delete, Update).
@@ -105,24 +107,24 @@ list_tables() {
   done 
 
   DB_name=$(basename "$dbTablesDir")
-  prompt_message "📜 Tables are available in $DB_name."
+  prompt_message "Tables are available in $DB_name. 📜"
   while true
   do 
-    # clear
     prompt_message "Select a table from $DB_name: "
-    PS3="Choose a table to operate on: "
+    PS3="$DB_name# "
     local tb_name
-    select tb_name in ${tables[@]} "Exit"
+    select tb_name in ${tables[@]} "Go Back"
     do
           case $tb_name in
-            "Exit")
-             break 2
+            "Go Back")
+              clear
+              break 2
             ;;
             $tb_name)
               clear
               PS3="$tb_name# "
               success_message "Selected Table: $tb_name"
-              next "$dbTablesDir"/$tb_name
+              perform_operations "$dbTablesDir"/$tb_name
               break
               ;;
             *)
@@ -134,54 +136,37 @@ list_tables() {
 
 }
 
-next(){
-  local tableDir=$1
-  prompt_message "What do you want to do next: "
-  select next in "Perform Operations" "Exit"
-  do
-    case $next in
-      "Perform Operations")
-        perform_operations "$tableDir"
-        break
-        ;;
-      "Exit")
-        success_message "Goodbye"
-        break 2
-        ;;
-      *)
-        error_message "Invalid choice. Please select an option."
-        ;;
-    esac
-  done
-}
-
 
 perform_operations() {
     local tableDir="$1"
     while true 
     do 
       PS3="Select the operation you want to perform on $tb_name:  "
-      select operation in "Select" "Insert" "Update" "Delete"  "Exit"
+      select operation in "Select" "Insert" "Update" "Delete"  "Go Back"
       do
         case $operation in
           "Select")
+            clear
             select_from_table "$tableDir"
             break
             ;;
           "Insert")
+            clear
             insert_into_table "$tableDir"
             break
             ;;
           "Update")
+            clear
             update_table  "$tableDir"
             break
             ;;
           "Delete")
+            clear
             delete_from_table "$tableDir"
             break
             ;;
-          "Exit")
-            success_message "Goodbye!"
+          "Go Back")
+            clear
             break 2
             ;;
           *)
@@ -210,10 +195,11 @@ drop_table() {
     clear
     prompt_message "Tables are available in $DB_name.📜"
     PS3="🗑️ Select a table from '$DB_name' that you want to drop:"
-    select option in ${tables[@]} "Exit ❌"
+    select option in ${tables[@]} "Abort ❌"
      do
-     if [[ $option == "Exit ❌" ]]
+     if [[ $option == "Abort ❌" ]]
      then
+        clear
         return
      elif [[ -n $option ]]
      then
@@ -230,16 +216,16 @@ drop_table() {
     do
       case $confirm in
         "Yes")
+          clear
           success_message "$tb_name Deleted"
           rm -f "$dbTablesDir"/$tb_name.*
           break
           ;;
         "No")
+          clear
           success_message "Delete Aborted"
           break
           ;;
       esac
     done
 }
-# list_tables
-# create_table 

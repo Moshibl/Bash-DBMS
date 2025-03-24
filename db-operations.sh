@@ -4,13 +4,14 @@
 # - List Databases
 # - Connect to Database
 # - Drop Database
-
+clear
 source validation.sh  # Import validation functions
 source table-operations.sh
 
 # Function to create a new database
 create_database() {
     # Ask for DB name, validate, and create as a directory
+    clear
     local databaseDire=$(database_exists) 
     DB_name=$(read_input "Enter Database Name: ")
     DB_name=$(validate_name $DB_name)
@@ -23,10 +24,12 @@ create_database() {
     fi
     clear
     success_message "DataBase '$DB_name' has been successfully created! 🚀"
+    echo
 }
 
 # Function to list available databases
 list_databases() {
+
     local databaseDire=$(database_exists) 
 
     if [ -z "$(ls -A "$databaseDire" )" ]
@@ -36,10 +39,12 @@ list_databases() {
         success_message "Available Databases:">&2
         ls -1 "$databaseDire"
     fi
+    echo
 }
 
 
 connect_database() {
+    clear
     local current_PS3=$PS3
     local databaseDire=$(database_exists) 
     if [ ! -d "$databaseDire" ]; then
@@ -54,11 +59,13 @@ connect_database() {
     fi
 
     while true; do
+        clear
         prompt_message "Select a Database:"
         PS3="DBMS# "
-        select DB_name in "${databases[@]}" "Exit"; do
+        select DB_name in "${databases[@]}" "Cancel"; do
             case $DB_name in
-                "Exit")
+                "Cancel")
+                    clear
                     PS3=$current_PS3
                     return
                     ;;
@@ -68,6 +75,7 @@ connect_database() {
                     ;;
                 *)
                     if [ -d "$databaseDire/$DB_name" ]; then
+                        clear
                         PS3="$DB_name# "
                         success_message "Connected to $DB_name!"
                         list_tablesOperations "$databaseDire/$DB_name"
@@ -85,6 +93,7 @@ connect_database() {
 # Function to drop a database
 drop_database() {
     # Confirm and delete the selected database directory
+    clear
     local databaseDire=$(database_exists) 
     Search=$(read_input "Search for database: ")
     local list=$(list_databases | grep -i "$Search")
@@ -98,29 +107,35 @@ drop_database() {
         do
         case $confirm in
             "Yes")
-            success_message "$DB_name Dropped"
+            clear
+            success_message "$DB_name Dropped Successfully!"
             rm -r "$databaseDire"/$DB_name
+            echo
             break
             ;;
             "No")
+            clear
             success_message "Drop Aborted"
+            echo
             break
             ;;
         esac
         done
     else
+        clear
         error_message "This Database Doesn't exist"
     fi
 }
 
 list_tablesOperations(){
+    clear
     local db_dir=$1
     while true
     do      
             # clear
             prompt_message "⚡ Please Choose the operation to perform on $DB_name:"
-            PS3="Please Choose the operation: "
-            select operation in "Create Table" "List Tables" "Drop Table" "Exit"
+            PS3="$DB_name# "
+            select operation in "Create Table" "List Tables" "Drop Table" "Go Back"
             do
             case $operation in
                 "Create Table")
@@ -135,8 +150,7 @@ list_tablesOperations(){
                 drop_table  "$db_dir"
                 break
                 ;;
-                "Exit")
-                success_message "Goodbye!"
+                "Go Back")
                 break 2
                 ;;
                 *)

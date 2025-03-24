@@ -5,13 +5,14 @@
 # Import necessary scripts
 source db-operations.sh
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
+success_message "🎉 Welcome to Bash DBMS! 🎉"
+echo
 # Function to display the main menu
 main_menu() {
     while true
     do  
-        prompt_message "🎉 Welcome to Bash DBMS! 🎉"
-        PS3="📌 Please choose an option:"
+        prompt_message "What would you like to do?"
+        PS3="📌 Please choose an operation 📌: "
         select option in "Create DB" "List DBs" "Connect DB" "Drop DB" "Exit"
         do
             case $option in
@@ -32,11 +33,11 @@ main_menu() {
                 break
             ;;
             "Exit")
-                echo "👋 Goodbye!"
+                echo "Goodbye! 👋"
                 exit
                 ;;
             *)
-            echo "❌ Invalid option. Please try again."
+            echo "Invalid option. Please try again. ❌"
             ;;
             esac    
         done

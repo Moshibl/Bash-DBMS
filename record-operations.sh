@@ -37,26 +37,32 @@ select_from_table() {
     do
         case $operation in 
             "Select All")
+                clear
                 awk -F: '{ printf "%s%s", (NR==1 ? "" : ":"), $1 } END { print "" }' $tableDir.meta > $dbdir/$tb_name.header
                 print_table
                 break
                 ;;
             "Select Record by Value")
+                clear
                 select_by_value
                 break
                 ;;
             "Select Record by Key")
+                clear
                 select_by_key
                 break
                 ;;
             "Select Column")
+                clear
                 select_column
                 break
                 ;;
             "Go Back")
+                clear
                 break
                 ;;
             *)
+                clear
                 error_message "Invalid Choice, please Try again"
                 ;;
         esac
@@ -65,12 +71,14 @@ select_from_table() {
 
 # Function to insert a new record
 insert_into_table() {
+    clear
     # Validate input types, enforce primary key constraints
     # Append data to the table file
     local tableDir="$1"
     local fieldNum=0
     local record=""
-
+    prompt_message "Inserting Into: $tb_name"
+    
     exec 3< "$tableDir.meta"
     while read -r line <&3
     do
@@ -86,25 +94,29 @@ insert_into_table() {
     exec 3<&-
     record="${record%:}"
     echo "$record" >> "$tableDir.tb"
-    echo "✅ Record inserted successfully: [$record]"
-
+    clear
+    success_message "✅ Record inserted successfully: [$record]"
 }
 
 # Function to update a record
 update_table() {
     # Modify an existing record while keeping data integrity
+    prompt_message "Updating on: $tb_name"
     local tableDir="$1"
-    select option in "Update one record based on PK 🔑" "Updete all occurrences 🔄"
+    select option in "Update one record based on PK 🔑" "Updete all occurrences 🔄" "Go Back"
     do
     case $option in
     "Update one record based on PK 🔑")
         update_record_by_pk "$tableDir"
         break
-    ;;
+        ;;
     "Updete all occurrences 🔄")
         batch_update_by_value "$tableDir"
         break
-    ;;
+        ;;
+    "Go Back")
+        break
+        ;;
     esac
     done
     
@@ -201,6 +213,7 @@ batch_update_by_value()
 
 
 delete_from_table() {
+    prompt_message "Deleting Records From: $tb_name"
     local tableDir="$1"
     local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
     local PK_oldValue=$(read_input "Please enter the PK of the record you want to delete 🔑: ")
@@ -215,8 +228,9 @@ delete_from_table() {
     success_message "Record with PK = $PK_oldValue deleted successfully ✅"
 }
 
-
+##BUG
 select_by_value(){
+    prompt_message "Select By Value on: $tb_name"
     term=$(read_input "Enter the value you want to select: ")
     echo ""
 
@@ -243,7 +257,7 @@ select_by_value(){
 
 
 select_by_key() {
-    echo ""
+    prompt_message "Select By Key on: $tb_name"
     local key=$(grep -in "PK" "$tableDir.meta" | cut -d: -f1)
 
     if [ -z "$key" ]; then
@@ -257,12 +271,12 @@ select_by_key() {
 
 
 select_column() {
+    prompt_message "Select Column from: $tb_name"
     if [ ! -f "$tableDir.meta" ]; then
         error_message "Metadata file not found!"
         return 1
     fi
     columns=($(awk -F: '{print $1}' $tableDir.meta))
-    echo "mytest" ${columns[@]}
 
     if [ ${#columns[@]} -eq 0 ]; then
         error_message "No columns found in metadata!"
@@ -270,14 +284,18 @@ select_column() {
     fi
 
     echo "Select a column:"
-    select option in "${columns[@]}"
+    select option in "${columns[@]}" "Go Back"
     do
-        if [[ -n "$option"  ]]
+        if [[ $option == "Go Back" ]]
+        then
+            break
+        elif [[ -n "$option"  ]]
         then 
             local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
-            awk -F: -v selected_col=$selected_col '{ print $selected_col }' $tableDir.tb
+            awk -F: -v selected_col=$selected_col '{ print $selected_col }' $tableDir.tb  
+            break
+        else
+            error_message "Invalid Choice"
         fi
     done
 }
-# batch_update_by_value
-# select_column

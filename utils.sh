@@ -9,7 +9,7 @@
 # local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
 # local match=$(awk -F: -v selected_col=$selected_col ' {print $selected_col} ' $tableDir.tb)
 print_table() {
-
+    prompt_message "Table Selected: $tb_name"
     col_count=$(wc -l $tableDir.meta)
     
     awk -v col_count="$col_count" '
@@ -67,24 +67,24 @@ prompt_message() {
    echo -e "\e[1;36m$message\e[0m"
 }
 # =======================================================================
-#                   Helper Functions
-# =========================================================================
+#                           Helper Functions
+# =======================================================================
 
 choose_data_type(){
 
-    PS3="👉 Please enter the data type for the column (📊 INTEGER / 🔤 STRING / 📅 DATE): "
-    select option in "📊 INTEGER"  "🔤 STRING" "📅 DATE"
+    PS3="👉 Please enter the data type for the column ( INTEGER 📊 /  STRING 🔤 / DATE 📅): "
+    select option in "INTEGER 📊"  "STRING 🔤" "DATE 📅"
     do
     case $option in
-        "📊 INTEGER")
+        "INTEGER 📊")
             echo "INTEGER"
         break
         ;;
-        "🔤 STRING")
+        "STRING 🔤")
             echo "STRING"
         break
         ;;
-        "📅 DATE")
+        "DATE 📅")
             echo "DATE"
         break
         ;;
@@ -94,15 +94,15 @@ choose_data_type(){
 
 
 choose_uniqueness(){
-    PS3="Would you like this field to be unique? (🔒 Yes / ❌ No): "
-    select option in "🔒 Yes"  "❌ No"
+    PS3="Would you like this field to be unique? ( Yes 🔒 /  No ❌ ): "
+    select option in "Yes 🔒"  "No ❌"
     do
         case $option in
-        "🔒 Yes")
+        "Yes 🔒")
             echo "UNIQUE"
             break
         ;;
-        "❌ No")
+        "No ❌")
             echo "NULL"
             break
         ;;
