@@ -10,7 +10,7 @@
 # local match=$(awk -F: -v selected_col=$selected_col ' {print $selected_col} ' $tableDir.tb)
 print_table() {
     prompt_message "Table Selected: $tb_name"
-    col_count=$(wc -l $tableDir.meta)
+    col_count=$(wc -l "$tableDir.meta")
     
     awk -v col_count="$col_count" '
     BEGIN {
@@ -45,7 +45,7 @@ print_table() {
         print LS
     }
     ' "$tableDir.header" "$tableDir.tb" 
-    rm $tableDir.header
+    rm "$tableDir.header"
 }
 # # Function to handle user input
 read_input() {

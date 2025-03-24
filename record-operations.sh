@@ -12,7 +12,7 @@ source utils.sh
 # Function to select and display records
 select_from_table() {
     local tableDir="$1"
-    dbdir=$(dirname $tableDir)
+    dbdir=$(dirname "$tableDir")
     if [ ! -s "$tableDir.tb" ]; then
         error_message "This table is still empty or has no records. ❌"
         prompt_message "Do you want to add records now? "
@@ -38,7 +38,7 @@ select_from_table() {
         case $operation in 
             "Select All")
                 clear
-                awk -F: '{ printf "%s%s", (NR==1 ? "" : ":"), $1 } END { print "" }' $tableDir.meta > $dbdir/$tb_name.header
+                awk -F: '{ printf "%s%s", (NR==1 ? "" : ":"), $1 } END { print "" }' "$tableDir.meta" > "$dbdir"/$tb_name.header
                 print_table
                 break
                 ;;
@@ -276,7 +276,7 @@ select_column() {
         error_message "Metadata file not found!"
         return 1
     fi
-    columns=($(awk -F: '{print $1}' $tableDir.meta))
+    columns=($(awk -F: '{print $1}' "$tableDir.meta"))
 
     if [ ${#columns[@]} -eq 0 ]; then
         error_message "No columns found in metadata!"
@@ -292,7 +292,7 @@ select_column() {
         elif [[ -n "$option"  ]]
         then 
             local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
-            awk -F: -v selected_col=$selected_col '{ print $selected_col }' $tableDir.tb  
+            awk -F: -v selected_col=$selected_col '{ print $selected_col }' "$tableDir.tb"  
             break
         else
             error_message "Invalid Choice"
