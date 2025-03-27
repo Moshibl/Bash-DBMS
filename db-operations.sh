@@ -60,9 +60,26 @@ connect_database() {
 
     while true; do
         clear
+        Search=$(read_input "Search for a Database: ")
+        if [[ $Search == "."* || $Search == '\' ]]
+        then
+            error_message "Invalid Input!"
+            echo
+            return
+        fi
+        local list=($(list_databases | grep -i "^$Search"))
+        if [[ $list != "" ]]
+        then
+            prompt_message "${list[*]}"
+            echo
+        else
+            error_message "No Matches found!"
+            echo
+            return
+        fi
         prompt_message "Select a Database:"
         PS3="DBMS# "
-        select DB_name in "${databases[@]}" "Cancel"; do
+        select DB_name in "${list[@]}" "Cancel"; do
             case $DB_name in
                 "Cancel")
                     clear
@@ -95,10 +112,23 @@ drop_database() {
     # Confirm and delete the selected database directory
     clear
     local databaseDire=$(database_exists) 
-    Search=$(read_input "Search for database: ")
-    local list=$(list_databases | grep -i "$Search")
-    echo $list
-
+    Search=$(read_input "Search for a Database: ")
+    if [[ $Search == "."* || $Search == '\' ]]
+    then
+        error_message "Invalid Input!"
+        echo
+        return
+    fi
+    local list=$(list_databases | grep -i "^$Search")
+    if [[ $list != "" ]]
+    then
+        prompt_message $list
+        echo
+    else
+        error_message "No Matches found!"
+        echo
+        return
+    fi
     DB_name=$(read_input "Select the database you want to drop: ")
     if [ -d "$databaseDire"/$DB_name ]
     then

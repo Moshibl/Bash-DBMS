@@ -63,7 +63,7 @@ success_message() {
    echo -e "\e[1;32m$message\e[0m"
 }
 prompt_message() {
-   local message=$1
+   local message=$@
    echo -e "\e[1;36m$message\e[0m"
 }
 # =======================================================================

@@ -218,7 +218,7 @@ drop_table() {
         "Yes")
           clear
           success_message "$tb_name Deleted"
-          rm -f "$dbTablesDir"/$tb_name.*
+          rm -f "$dbTablesDir"/$tb_name.* 2> /dev/null
           break
           ;;
         "No")
