@@ -17,10 +17,10 @@ create_database() {
     DB_name=$(validate_name $DB_name)
     if [ -d "$databaseDire"/$DB_name ]
     then
-        error_message "Database already exists!"
+        error_message "Database already exists! ❌"
     else
         mkdir -p "$databaseDire"/$DB_name
-        success_message "Database created successfully"
+        success_message "Database created successfully! ✅"
     fi
     clear
     success_message "DataBase '$DB_name' has been successfully created! 🚀"
@@ -34,7 +34,7 @@ list_databases() {
 
     if [ -z "$(ls -A "$databaseDire" )" ]
     then
-        error_message "No databases found!">&2
+        error_message "No Databases found! ❌">&2
     else
         success_message "Available Databases:">&2
         ls -1 "$databaseDire"
@@ -42,19 +42,18 @@ list_databases() {
     echo
 }
 
-
 connect_database() {
     clear
     local current_PS3=$PS3
     local databaseDire=$(database_exists) 
     if [ ! -d "$databaseDire" ]; then
-        error_message "Databases directory not found!"
+        error_message "Databases directory not found! ❌"
         return 1
     fi
 
     local databases=($(ls "$databaseDire"))
     if [ ${#databases[@]} -eq 0 ]; then
-        error_message "No databases found!"
+        error_message "No Databases found! ❌"
         return 1
     fi
 
@@ -63,7 +62,7 @@ connect_database() {
         Search=$(read_input "Search for a Database: ")
         if [[ $Search == "."* || $Search == '\' ]]
         then
-            error_message "Invalid Input!"
+            error_message "Invalid Input! ❌"
             echo
             return
         fi
@@ -73,7 +72,7 @@ connect_database() {
             prompt_message "${list[*]}"
             echo
         else
-            error_message "No Matches found!"
+            error_message "No Matches found! ❌"
             echo
             return
         fi
@@ -87,17 +86,21 @@ connect_database() {
                     return
                     ;;
                 "")
-                    error_message "Invalid selection. Please try again."
-                    break
+                    clear
+                    error_message "Invalid selection, Please try again! ❌"
+                    break 2
                     ;;
                 *)
                     if [ -d "$databaseDire/$DB_name" ]; then
                         clear
                         PS3="$DB_name# "
-                        success_message "Connected to $DB_name!"
+                        success_message "Successfully Connected to $DB_name ✅!"
                         list_tablesOperations "$databaseDire/$DB_name"
+                        clear
+                        break 2
                     else
-                        error_message "Database not found!"
+                        error_message "Database not found! ❌"
+                        break
                     fi
                     break
                     ;;
@@ -125,7 +128,7 @@ drop_database() {
         prompt_message $list
         echo
     else
-        error_message "No Matches found!"
+        error_message "No Matches found! ❌"
         echo
         return
     fi
@@ -138,7 +141,7 @@ drop_database() {
         case $confirm in
             "Yes")
             clear
-            success_message "$DB_name Dropped Successfully!"
+            success_message "$DB_name Dropped Successfully! ✅"
             rm -r "$databaseDire"/$DB_name
             echo
             break
@@ -153,7 +156,7 @@ drop_database() {
         done
     else
         clear
-        error_message "This Database Doesn't exist"
+        error_message "This Database Doesn't exist ❌"
     fi
 }
 
@@ -184,7 +187,7 @@ list_tablesOperations(){
                 break 2
                 ;;
                 *)
-                error_message "Invalid choice. Please select an operation."
+                error_message "Invalid choice ❌. Please select an operation."
                 ;;
             esac
             done  

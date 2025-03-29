@@ -65,7 +65,7 @@ create_table() {
         break
       ;;
       *)
-      echo "⚠️ Invalid choice! Please select a Primary Key (PK) from the available options. 🔑"
+      echo "Invalid choice! ❌ Please select a Primary Key (PK) from the available options. 🔑"
       ;;
     esac
     done
@@ -97,7 +97,7 @@ list_tables() {
   local dbTablesDir="$1"
   if [[ -z $(ls -A "$dbTablesDir"/*.tb 2>/dev/null) ]]
   then
-      error_message "No tables found in this database"
+      error_message "No tables found in this database! ❌"
       return 
   fi
 
@@ -107,7 +107,6 @@ list_tables() {
   done 
 
   DB_name=$(basename "$dbTablesDir")
-  prompt_message "Tables are available in $DB_name. 📜"
   while true
   do 
     prompt_message "Select a table from $DB_name: "
@@ -128,7 +127,7 @@ list_tables() {
               break
               ;;
             *)
-              error_message "Invalid choice. Please select a table."
+              error_message "Invalid choice! ❌ Please select a table."
               ;;
           esac
     done
@@ -141,7 +140,8 @@ perform_operations() {
     local tableDir="$1"
     while true 
     do 
-      PS3="Select the operation you want to perform on $tb_name:  "
+      PS3="$tb_name# "
+      prompt_message "Select the operation you want to perform on $tb_name:"
       select operation in "Select" "Insert" "Update" "Delete"  "Go Back"
       do
         case $operation in
@@ -170,7 +170,7 @@ perform_operations() {
             break 2
             ;;
           *)
-            error_message "Invalid choice. Please select an operation."
+            error_message "Invalid choice! ❌ Please select an operation."
             ;;
         esac
       done
@@ -182,7 +182,7 @@ drop_table() {
     local dbTablesDir="$1"
     if [[ -z $(ls -A "$dbTablesDir"/*.tb 2>/dev/null) ]]
     then
-        error_message "No tables found in this database"
+        error_message "No tables found in this database! ❌"
         return 
     fi
     local dbTablesDir="$1"
@@ -193,8 +193,8 @@ drop_table() {
 
     DB_name=$(basename "$dbTablesDir")
     clear
-    prompt_message "Tables are available in $DB_name.📜"
-    PS3="🗑️ Select a table from '$DB_name' that you want to drop:"
+  
+    prompt_message "Select the table you want to drop from $DB_name 🗑️:"
     select option in ${tables[@]} "Abort ❌"
      do
      if [[ $option == "Abort ❌" ]]
@@ -206,7 +206,7 @@ drop_table() {
           local tb_name=$option
           break
       else 
-       error_message "Invalid choice. Please select a table."   
+       error_message "Invalid choice! ❌ Please select a table."   
      fi
      done
 
@@ -217,7 +217,7 @@ drop_table() {
       case $confirm in
         "Yes")
           clear
-          success_message "$tb_name Deleted"
+          success_message "$tb_name Deleted ✅"
           rm -f "$dbTablesDir"/$tb_name.* 2> /dev/null
           break
           ;;

@@ -27,7 +27,7 @@ select_from_table() {
                         return
                         ;;
                     *)
-                        error_message "Invalid Choice"
+                        error_message "Invalid Choice ❌"
                         ;;
                 esac
             done
@@ -63,7 +63,7 @@ select_from_table() {
                 ;;
             *)
                 clear
-                error_message "Invalid Choice, please Try again"
+                error_message "Invalid Choice, please Try again ❌"
                 ;;
         esac
     done           
@@ -95,7 +95,7 @@ insert_into_table() {
     record="${record%:}"
     echo "$record" >> "$tableDir.tb"
     clear
-    success_message "✅ Record inserted successfully: [$record]"
+    success_message "Record inserted successfully: [$record] ✅"
 }
 
 # Function to update a record
@@ -119,8 +119,6 @@ update_table() {
         ;;
     esac
     done
-    
-
 }
 
 update_record_by_pk()
@@ -171,10 +169,9 @@ update_record_by_pk()
         esac
     done
     success_message "✅ Successfully updated '$oldValue' to '$newValue' in line $lineNum!"
-
 }
-batch_update_by_value()
-{
+
+batch_update_by_value(){
     local tableDir="$1"
     local fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
     PS3="Enter the number of the column you want to update: "
@@ -200,15 +197,13 @@ batch_update_by_value()
                  if($fieldNum==oldValue) $fieldNum=newValue;
                  print}' "$tableDir.tb" > temp && mv temp "$tableDir.tb"
  
-                
                 break
 
             else
-                error_message "❌ Invalid choice! Please select a valid column number."
+                error_message "Invalid choice! ❌ Please select a valid column number."
             fi
      
     done
-
 }
 
 
@@ -228,13 +223,12 @@ delete_from_table() {
     success_message "Record with PK = $PK_oldValue deleted successfully ✅"
 }
 
-##BUG
 select_by_value(){
     prompt_message "Select By Value on: $tb_name"
-    term=$(read_input "Enter the value you want to select: ")
-    echo ""
+    local term=$(read_input "Enter the value you want to select: ")
+    echo
 
-    awk -F: -v term="$term" '
+    result=$(awk -F: -v term="$term" '
     BEGIN{
         found=0
         }
@@ -250,40 +244,58 @@ select_by_value(){
         if (found == 0) 
         print "Value not found" 
         }
-    ' "$tableDir.tb"
+    ' "$tableDir.tb")
 
-    echo ""
+    if [[ -z "$result" || "$result" == "Value not found" ]]; then
+        error_message "No records found with value: $term ! ❌"
+    else
+        success_message "$result"
+    fi
+    
+    echo
 }
 
 
 select_by_key() {
     prompt_message "Select By Key on: $tb_name"
     local key=$(grep -in "PK" "$tableDir.meta" | cut -d: -f1)
-
+    echo
     if [ -z "$key" ]; then
-        error_message "No primary key found in metadata!"
+        error_message "No primary key found in metadata! ❌"
         return
     fi
-    enter=$(read_input "Enter the value of the PK you want to select by: ")
-    awk -F: -v key="$key" -v search_value="$enter" '$key == search_value {print $0}' "$tableDir.tb"
-    echo ""
+
+    local term=$(read_input "Enter the value of the PK you want to select by: ")
+
+    result=$(awk -F: -v key="$key" -v search_value="$term" '
+        BEGIN { found = 0 }
+        $key == search_value { print $0; found = 1 }
+        END { if (found == 0) print "Value not found ❌" }
+    ' "$tableDir.tb")
+
+    if [[ -z "$result" || "$result" == "Value not found" ]]; then
+        error_message "No record found with PK: $term !❌"
+    else
+        success_message "$result"
+    fi
+
+    echo
 }
 
-
 select_column() {
+    local PS3="$tb_name# "
     prompt_message "Select Column from: $tb_name"
     if [ ! -f "$tableDir.meta" ]; then
-        error_message "Metadata file not found!"
+        error_message "Metadata file not found! ❌"
         return 1
     fi
     columns=($(awk -F: '{print $1}' "$tableDir.meta"))
 
     if [ ${#columns[@]} -eq 0 ]; then
-        error_message "No columns found in metadata!"
+        error_message "No columns found in metadata! ❌"
         return 1
     fi
 
-    echo "Select a column:"
     select option in "${columns[@]}" "Go Back"
     do
         if [[ $option == "Go Back" ]]
@@ -292,10 +304,12 @@ select_column() {
         elif [[ -n "$option"  ]]
         then 
             local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
-            awk -F: -v selected_col=$selected_col '{ print $selected_col }' "$tableDir.tb"  
+            echo
+            awk -F: -v selected_col=$selected_col '{ print $selected_col }' "$tableDir.tb"
+            echo
             break
         else
-            error_message "Invalid Choice"
+            error_message "Invalid Choice! ❌"
         fi
     done
 }
