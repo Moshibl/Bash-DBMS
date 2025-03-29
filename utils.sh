@@ -104,7 +104,7 @@ choose_uniqueness(){
         ;;
         "No ❌")
             echo "NULL"
-            break##BUG
+            break
         ;;
         esac
     done

@@ -20,11 +20,8 @@ create_database() {
         error_message "Database already exists! ❌"
     else
         mkdir -p "$databaseDire"/$DB_name
-        success_message "Database created successfully! ✅"
+        success_message "DataBase '$DB_name' has been successfully created! 🚀"
     fi
-    clear
-    success_message "DataBase '$DB_name' has been successfully created! 🚀"
-    echo
 }
 
 # Function to list available databases
@@ -122,42 +119,71 @@ drop_database() {
         echo
         return
     fi
-    local list=$(list_databases | grep -i "^$Search")
+    local list=($(list_databases | grep -i "^$Search"))
     if [[ $list != "" ]]
     then
-        prompt_message $list
+        prompt_message "${list[*]}"
+
         echo
     else
         error_message "No Matches found! ❌"
         echo
         return
     fi
-    DB_name=$(read_input "Select the database you want to drop: ")
-    if [ -d "$databaseDire"/$DB_name ]
-    then
-        PS3="$DB_name# "
-        select confirm in "Yes" "No"
-        do
-        case $confirm in
-            "Yes")
-            clear
-            success_message "$DB_name Dropped Successfully! ✅"
-            rm -r "$databaseDire"/$DB_name
-            echo
+  
+    prompt_message "Select the database you want to drop:"
+    PS3="$DB_name# "
+    select DB_name in "${list[@]}" "Cancel"; do
+        case $DB_name in
+            "Cancel")
+                clear
+                PS3=$current_PS3
+                return
+                ;;
+            "")
+                clear
+                error_message "Invalid selection, Please try again! ❌"
+                break 2
+                ;;
+            *)
+            if [ -d "$databaseDire/$DB_name" ]; then
+                select confirm in "Yes" "No"
+                    do
+                    case $confirm in
+                        "Yes")
+                        clear
+                        success_message "$DB_name Dropped Successfully! ✅"
+                        rm -r "$databaseDire"/$DB_name
+                        echo
+                        break
+                        ;;
+                        "No")
+                        clear
+                        success_message "Drop Aborted"
+                        echo
+                        break
+                        ;;
+                    esac
+                    done
+            fi
             break
-            ;;
-            "No")
-            clear
-            success_message "Drop Aborted"
-            echo
-            break
-            ;;
+                ;;
         esac
-        done
-    else
-        clear
-        error_message "This Database Doesn't exist ❌"
-    fi
+    done
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 list_tablesOperations(){
