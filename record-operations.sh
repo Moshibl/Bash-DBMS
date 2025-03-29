@@ -78,7 +78,7 @@ insert_into_table() {
     local fieldNum=0
     local record=""
     if [[ ! -f "$tableDir.meta" ]]; then
-        error_message "the table does not exist."
+        error_message "the table does not exist! ❌"
         return
     fi
     prompt_message "Inserting Into: $tb_name"
@@ -281,6 +281,7 @@ select_by_key() {
     if [[ -z "$result" || "$result" == "Value not found" ]]; then
         error_message "No record found with PK: $term !❌"
     else
+        echo
         success_message "$result"
     fi
 

@@ -34,7 +34,8 @@ list_databases() {
         error_message "No Databases found! ❌">&2
     else
         success_message "Available Databases:">&2
-        ls -1 "$databaseDire"
+        local result=$(ls -1 "$databaseDire")
+        prompt_message $result
     fi
     echo
 }
@@ -63,7 +64,7 @@ connect_database() {
             echo
             return
         fi
-        local list=($(list_databases | grep -i "^$Search"))
+        local list=($(ls -1 "$databaseDire" | grep -i "^$Search"))
         if [[ $list != "" ]]
         then
             prompt_message "${list[*]}"
@@ -110,6 +111,7 @@ connect_database() {
 # Function to drop a database
 drop_database() {
     # Confirm and delete the selected database directory
+    PS3="DBMS# "
     clear
     local databaseDire=$(database_exists) 
     Search=$(read_input "Search for a Database: ")
@@ -119,7 +121,7 @@ drop_database() {
         echo
         return
     fi
-    local list=($(list_databases | grep -i "^$Search"))
+    local list=($(ls -1 "$databaseDire" | grep -i "^$Search"))
     if [[ $list != "" ]]
     then
         prompt_message "${list[*]}"
@@ -132,12 +134,10 @@ drop_database() {
     fi
   
     prompt_message "Select the database you want to drop:"
-    PS3="$DB_name# "
     select DB_name in "${list[@]}" "Cancel"; do
         case $DB_name in
             "Cancel")
                 clear
-                PS3=$current_PS3
                 return
                 ;;
             "")
@@ -147,6 +147,7 @@ drop_database() {
                 ;;
             *)
             if [ -d "$databaseDire/$DB_name" ]; then
+                PS3="$DB_name# "
                 select confirm in "Yes" "No"
                     do
                     case $confirm in
