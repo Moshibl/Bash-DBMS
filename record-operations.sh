@@ -77,6 +77,10 @@ insert_into_table() {
     local tableDir="$1"
     local fieldNum=0
     local record=""
+    if [[ ! -f "$tableDir.meta" ]]; then
+        error_message "the table does not exist."
+        return
+    fi
     prompt_message "Inserting Into: $tb_name"
     
     exec 3< "$tableDir.meta"
@@ -94,7 +98,8 @@ insert_into_table() {
     exec 3<&-
     record="${record%:}"
     echo "$record" >> "$tableDir.tb"
-    clear
+    echo shaimaa $?
+    
     success_message "Record inserted successfully: [$record] ✅"
 }
 

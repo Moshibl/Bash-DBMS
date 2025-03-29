@@ -1,3 +1,0 @@
-id:INTEGER:PK
-name:STRING:NULL
-birthdate:DATE:NULL
