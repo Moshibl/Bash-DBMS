@@ -12,7 +12,7 @@ main_menu() {
     while true
     do  
         prompt_message "What would you like to do?"
-        PS3="📌 Please choose an operation 📌: "
+        PS3="🔹 DBMS# "
         select option in "Create DB" "List DBs" "Connect DB" "Drop DB" "Exit"
         do
             case $option in

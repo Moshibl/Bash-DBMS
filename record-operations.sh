@@ -8,14 +8,13 @@
 source validation.sh  # Import validation functions
 source utils.sh
 
-
 # Function to select and display records
 select_from_table() {
     local tableDir="$1"
     dbdir=$(dirname "$tableDir")
     if [ ! -s "$tableDir.tb" ]; then
-        error_message "This table is still empty or has no records. ❌"
-        prompt_message "Do you want to add records now? "
+        error_message "This table is still empty or has no records. ❌" 
+        prompt_message "Do you want to add records now? " 
         select choice in "Yes" "No"
             do 
                 case $choice in 
@@ -27,7 +26,7 @@ select_from_table() {
                         return
                         ;;
                     *)
-                        error_message "Invalid Choice ❌"
+                        error_message "Invalid Choice ❌" 
                         ;;
                 esac
             done
@@ -63,7 +62,7 @@ select_from_table() {
                 ;;
             *)
                 clear
-                error_message "Invalid Choice, please Try again ❌"
+                error_message "Invalid Choice, please Try again ❌" 
                 ;;
         esac
     done           
@@ -78,11 +77,10 @@ insert_into_table() {
     local fieldNum=0
     local record=""
     if [[ ! -f "$tableDir.meta" ]]; then
-        error_message "the table does not exist! ❌"
+        error_message "the table does not exist! ❌" 
         return
     fi
-    prompt_message "Inserting Into: $tb_name"
-    
+    prompt_message "Inserting Into: $tb_name" 
     exec 3< "$tableDir.meta"
     while read -r line <&3
     do
@@ -91,16 +89,16 @@ insert_into_table() {
         local fieldDataType=$( echo $line | cut -d ":" -f2 ) 
         local fieldConstraint=$( echo $line | cut -d ":" -f3 )
         local fieldValue
-        fieldValue="$(read_input "Please Enter Value of $fieldName: ")"
+        prompt_message "Please Enter Value of $fieldName: " 
+        fieldValue="$(read_input "$PS3")"
         fieldValue="$(validate_uniqueness_dataType "$tableDir.tb" "$fieldDataType" "$fieldConstraint" "$fieldValue" "$fieldNum")"
         record+="$fieldValue:" 
     done
     exec 3<&-
     record="${record%:}"
     echo "$record" >> "$tableDir.tb"
-    echo shaimaa $?
-    
-    success_message "Record inserted successfully: [$record] ✅"
+    success_message "Record inserted successfully: [$record] ✅" 
+    echo
 }
 
 # Function to update a record
@@ -133,7 +131,9 @@ update_record_by_pk()
     # Extracts only the line number to determine the field position. 
     local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
     #  ask user about PK
-    local PK_oldValue=$(read_input "Please enter the PK of the record you want to update 🔑: ")
+    echo
+    prompt_message "Please enter the PK of the record you want to update 🔑: "
+    local PK_oldValue=$(read_input "$PS3")
 
 
     # Retrieve the entire record from the database table.
@@ -156,7 +156,8 @@ update_record_by_pk()
     # Perform the update in the database using `sed`
 
     local fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
-    PS3="Enter the number of the column you want to update: "
+    echo
+    prompt_message "Enter the number of the column you want to update:"
     select option in "${fieldsNames[@]}"
     do
         case $option in
@@ -165,7 +166,9 @@ update_record_by_pk()
                 local fieldDataType=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f2 )
                 local fieldConstraint=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f3 )
                 oldValue=$(echo "$record" | cut -d ":" -f"$(($fieldNum + 1))")
-                local newValue=$(read_input "Please enter new Value you want to update 📝: ")
+                echo
+                prompt_message "Please enter new Value you want to update 📝: "
+                local newValue=$(read_input "$PS3")
                 newValue="$(validate_uniqueness_dataType "$tableDir.tb" "$fieldDataType" "$fieldConstraint" "$newValue" "$fieldNum")"
                 sed -i "${lineNum}s|$oldValue|$newValue|" "$tableDir.tb"
                 break
@@ -174,19 +177,23 @@ update_record_by_pk()
         esac
     done
     success_message "✅ Successfully updated '$oldValue' to '$newValue' in line $lineNum!"
+    echo
 }
 
 batch_update_by_value(){
     local tableDir="$1"
     local fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
-    PS3="Enter the number of the column you want to update: "
+    echo
+    prompt_message "Enter the number of the column you want to update: "
     select option in "${fieldsNames[@]}"
     do
             if [[ -n "$option" ]]; then 
                 local fieldNum=$(grep -in "$option" "$tableDir.meta" | cut -d ":" -f1)
                 local fieldDataType=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f2 )
                 local fieldConstraint=$(grep -i "$option" "$tableDir.meta" | cut -d ":" -f3 )
-                local oldValue=$(read_input "Please enter old Value you want to update 📝: ")
+                echo
+                prompt_message "Please enter old Value you want to update 📝:"
+                local oldValue=$(read_input "$PS3")
 
                 oldValueMatching=$(awk -F":" -v fieldNum=$fieldNum -v oldValue=$oldValue '$fieldNum==oldValue {print $fieldNum}' "$tableDir.tb")
                 if [[ -z $oldValueMatching ]]
@@ -216,7 +223,8 @@ delete_from_table() {
     prompt_message "Deleting Records From: $tb_name"
     local tableDir="$1"
     local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
-    local PK_oldValue=$(read_input "Please enter the PK of the record you want to delete 🔑: ")
+    prompt_message  "Please enter the PK of the record you want to delete 🔑: "
+    local PK_oldValue=$(read_input "$PS3")
     local record=$(awk -F":" -v fieldNum="$fieldNum" -v PK_oldValue="$PK_oldValue" \
         '$fieldNum == PK_oldValue { print NR }' "$tableDir.tb")
 
@@ -230,7 +238,8 @@ delete_from_table() {
 
 select_by_value(){
     prompt_message "Select By Value on: $tb_name"
-    local term=$(read_input "Enter the value you want to select: ")
+    prompt_message "Enter the value you want to select: "
+    local term=$(read_input "$PS3")
     echo
 
     result=$(awk -F: -v term="$term" '
@@ -247,12 +256,12 @@ select_by_value(){
         }
     END{
         if (found == 0) 
-        print "Value not found" 
+        "Value not found" 
         }
     ' "$tableDir.tb")
 
     if [[ -z "$result" || "$result" == "Value not found" ]]; then
-        error_message "No records found with value: $term ! ❌"
+        error_message "No records found with value: $term! ❌"
     else
         success_message "$result"
     fi
@@ -264,22 +273,22 @@ select_by_value(){
 select_by_key() {
     prompt_message "Select By Key on: $tb_name"
     local key=$(grep -in "PK" "$tableDir.meta" | cut -d: -f1)
-    echo
     if [ -z "$key" ]; then
         error_message "No primary key found in metadata! ❌"
         return
     fi
-
-    local term=$(read_input "Enter the value of the PK you want to select by: ")
+    prompt_message "Enter the value of the PK you want to select by: "
+    local term=$(read_input "$PS3")
 
     result=$(awk -F: -v key="$key" -v search_value="$term" '
         BEGIN { found = 0 }
         $key == search_value { print $0; found = 1 }
-        END { if (found == 0) print "Value not found ❌" }
+        END { if (found == 0) "Value not found" }
     ' "$tableDir.tb")
 
     if [[ -z "$result" || "$result" == "Value not found" ]]; then
-        error_message "No record found with PK: $term !❌"
+        echo
+        error_message "No record found with PK: $term!❌"
     else
         echo
         success_message "$result"
@@ -311,6 +320,7 @@ select_column() {
         then 
             local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
             echo
+            success_message "$option"
             awk -F: -v selected_col=$selected_col '{ print $selected_col }' "$tableDir.tb"
             echo
             break

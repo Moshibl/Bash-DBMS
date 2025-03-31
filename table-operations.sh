@@ -15,11 +15,10 @@ create_table() {
   # Step 1: Ask the user for the table name
     # - Validate that the name follows naming conventions
     # - Ensure the table name does not already exist
-    # set -x
     clear
     local dataBaseDir=$1
-    local tableName=$(read_input "Please enter the name of the table: ")
-    # set +x
+    prompt_message "Please enter the name of the table: "
+    local tableName=$(read_input "$PS3")
     tableName=$(validate_name "$tableName")
     table_exists "$dataBaseDir"/$tableName
     checkFileEXists=$?
@@ -27,27 +26,30 @@ create_table() {
     then
       return 0
     fi
-
     # Step 2: Create an empty data file for storing records and metadata
     # - Store actual table data in a separate `.table` file and columnName in .meta
-    # 
-
-
     # Step 3: Define table columns
     # - Ask the user how many columns they want
     # - For each column:
     #   - Ask for column name and validate it (must not contain spaces/special characters)
     #   - Ask for column data type (e.g., STRING, INTEGER) and validate it
     #   - Ask if this column should be UNIQUE (Yes/No)
-    local  metaData
-    local nOfColumns=$(read_input "📊 Please enter the number of columns for your table: ")
-    nOfColumns=$(validate_column_count $nOfColumns)
 
+    echo
+    prompt_message "Please enter the number of columns for your table: "
+    local nOfColumns=$(read_input "$PS3")
+    nOfColumns=$(validate_column_count $nOfColumns)
     for(( i=1; i<=nOfColumns; i++))
     do
-      local columnName=$(read_input "Please enter the name of the column: ")
+      echo
+      prompt_message  "Please enter the name of the column: "
+      local columnName=$(read_input "$PS3")
       columnName=$(validate_name "$columnName")
+      echo
+      prompt_message "Please enter the data type for the column ( INTEGER 📊 /  STRING 🔤 / DATE 📅): "
       local columnDataType=$(choose_data_type)
+      echo
+      prompt_message "Would you like this field to be unique? ( Yes 🔒 /  No ❌ ): "
       local columnUniqueness=$(choose_uniqueness)
       local metaData+=("${columnName}":${columnDataType}:${columnUniqueness})
     done
@@ -55,7 +57,8 @@ create_table() {
     # - Validate the selection:
     #   - Ensure the input is a valid number.
     fieldNames=($(printf "%s\n" "${metaData[@]}" | awk -F':' '{print $1}'))
-    PS3="🔑 Please choose the column you want to set as the Primary Key (PK): "
+    echo
+    prompt_message "Please choose the column you want to set as the Primary Key (PK): "
     select option in ${fieldNames[@]}
     do
     case $REPLY in 
@@ -84,8 +87,6 @@ create_table() {
     success_message "Table '$tableName' has been successfully created! 🚀"
 }
 
-
-
 list_tables() {
   clear
   # Function to list all available tables in the currently connected database.
@@ -110,7 +111,6 @@ list_tables() {
   while true
   do 
     prompt_message "Select a table from $DB_name: "
-    PS3="$DB_name# "
     local tb_name
     select tb_name in ${tables[@]} "Go Back"
     do
@@ -121,9 +121,9 @@ list_tables() {
             ;;
             $tb_name)
               clear
-              PS3="$tb_name# "
               success_message "Selected Table: $tb_name"
               perform_operations "$dbTablesDir"/$tb_name
+              PS3="🔹 $DB_name# "
               break
               ;;
             *)
@@ -135,12 +135,11 @@ list_tables() {
 
 }
 
-
 perform_operations() {
     local tableDir="$1"
     while true 
     do 
-      PS3="$tb_name# "
+      PS3="🔹 $tb_name# "
       prompt_message "Select the operation you want to perform on $tb_name:"
       select operation in "Select" "Insert" "Update" "Delete"  "Go Back"
       do

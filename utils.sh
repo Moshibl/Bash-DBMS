@@ -56,23 +56,22 @@ read_input() {
  # Function to display error messages
 error_message() {
    local message=$1
-   echo -e "\e[1;31m$message\e[0m"
+   echo -e "\e[1;31m$message\e[0m" >&2
 }
 success_message() {
    local message=$1
-   echo -e "\e[1;32m$message\e[0m"
+   echo -e "\e[1;32m$message\e[0m" >&2
 }
 prompt_message() {
    local message=$@
-   echo -e "\e[1;36m$message\e[0m"
+   echo -e "\e[1;36m$message\e[0m" >&2
 }
 # =======================================================================
 #                           Helper Functions
 # =======================================================================
 
-choose_data_type(){
+choose_data_type() {
 
-    PS3="👉 Please enter the data type for the column ( INTEGER 📊 /  STRING 🔤 / DATE 📅): "
     select option in "INTEGER 📊"  "STRING 🔤" "DATE 📅"
     do
     case $option in
@@ -92,9 +91,8 @@ choose_data_type(){
     done
 }
 
-
 choose_uniqueness(){
-    PS3="Would you like this field to be unique? ( Yes 🔒 /  No ❌ ): "
+
     select option in "Yes 🔒"  "No ❌"
     do
         case $option in

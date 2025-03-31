@@ -13,36 +13,42 @@ create_database() {
     # Ask for DB name, validate, and create as a directory
     clear
     local databaseDire=$(database_exists) 
-    DB_name=$(read_input "Enter Database Name: ")
+    prompt_message "Enter Database Name: "
+    DB_name=$(read_input "$PS3")
     DB_name=$(validate_name $DB_name)
     if [ -d "$databaseDire"/$DB_name ]
     then
+        echo
         error_message "Database already exists! ❌"
     else
         mkdir -p "$databaseDire"/$DB_name
+        echo
         success_message "DataBase '$DB_name' has been successfully created! 🚀"
+        echo
     fi
 }
 
 # Function to list available databases
 list_databases() {
-
+    clear
     local databaseDire=$(database_exists) 
 
     if [ -z "$(ls -A "$databaseDire" )" ]
     then
-        error_message "No Databases found! ❌">&2
+        error_message "No Databases found! ❌"
     else
-        success_message "Available Databases:">&2
+        success_message "Available Databases:"
         local result=$(ls -1 "$databaseDire")
-        prompt_message $result
+        for item in $result; do
+            prompt_message "- $item"
+            
+        done
     fi
     echo
 }
 
 connect_database() {
     clear
-    local current_PS3=$PS3
     local databaseDire=$(database_exists) 
     if [ ! -d "$databaseDire" ]; then
         error_message "Databases directory not found! ❌"
@@ -54,10 +60,10 @@ connect_database() {
         error_message "No Databases found! ❌"
         return 1
     fi
-
     while true; do
         clear
-        Search=$(read_input "Search for a Database: ")
+        prompt_message "Search for a Database: "
+        Search=$(read_input "$PS3")
         if [[ $Search == "."* || $Search == '\' ]]
         then
             error_message "Invalid Input! ❌"
@@ -67,6 +73,8 @@ connect_database() {
         local list=($(ls -1 "$databaseDire" | grep -i "^$Search"))
         if [[ $list != "" ]]
         then
+            echo
+            success_message "Available Databases:"
             prompt_message "${list[*]}"
             echo
         else
@@ -75,12 +83,11 @@ connect_database() {
             return
         fi
         prompt_message "Select a Database:"
-        PS3="DBMS# "
+        
         select DB_name in "${list[@]}" "Cancel"; do
             case $DB_name in
                 "Cancel")
                     clear
-                    PS3=$current_PS3
                     return
                     ;;
                 "")
@@ -90,8 +97,7 @@ connect_database() {
                     ;;
                 *)
                     if [ -d "$databaseDire/$DB_name" ]; then
-                        clear
-                        PS3="$DB_name# "
+                        PS3="🔹 $DB_name# "
                         success_message "Successfully Connected to $DB_name ✅!"
                         list_tablesOperations "$databaseDire/$DB_name"
                         clear
@@ -111,10 +117,10 @@ connect_database() {
 # Function to drop a database
 drop_database() {
     # Confirm and delete the selected database directory
-    PS3="DBMS# "
     clear
     local databaseDire=$(database_exists) 
-    Search=$(read_input "Search for a Database: ")
+    prompt_message "Search for a Database: "
+    Search=$(read_input "$PS3")
     if [[ $Search == "."* || $Search == '\' ]]
     then
         error_message "Invalid Input!"
@@ -124,6 +130,8 @@ drop_database() {
     local list=($(ls -1 "$databaseDire" | grep -i "^$Search"))
     if [[ $list != "" ]]
     then
+        echo
+        success_message "Available Databases:"
         prompt_message "${list[*]}"
 
         echo
@@ -147,7 +155,6 @@ drop_database() {
                 ;;
             *)
             if [ -d "$databaseDire/$DB_name" ]; then
-                PS3="$DB_name# "
                 select confirm in "Yes" "No"
                     do
                     case $confirm in
@@ -171,20 +178,6 @@ drop_database() {
                 ;;
         esac
     done
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 list_tablesOperations(){
@@ -194,7 +187,6 @@ list_tablesOperations(){
     do      
             # clear
             prompt_message "⚡ Please Choose the operation to perform on $DB_name:"
-            PS3="$DB_name# "
             select operation in "Create Table" "List Tables" "Drop Table" "Go Back"
             do
             case $operation in
