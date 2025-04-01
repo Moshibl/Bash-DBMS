@@ -19,7 +19,7 @@ select_from_table() {
             do 
                 case $choice in 
                     "Yes")
-                        insert_into_table $tableDir
+                        insert_into_table "$tableDir"
                         break
                         ;;
                     "No")
@@ -70,7 +70,7 @@ select_from_table() {
 
 # Function to insert a new record
 insert_into_table() {
-    clear
+    # clear
     # Validate input types, enforce primary key constraints
     # Append data to the table file
     local tableDir="$1"
