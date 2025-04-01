@@ -33,8 +33,7 @@ main_menu() {
                 break
             ;;
             "Exit")
-                echo "Goodbye! 👋"
-                exit
+                pacman_exit
                 ;;
             *)
             echo "Invalid option. Please try again. ❌"
@@ -46,3 +45,4 @@ main_menu() {
 
 # Start the script by calling the main menu
 main_menu
+

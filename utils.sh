@@ -107,3 +107,31 @@ choose_uniqueness(){
         esac
     done
 }
+pacman_exit() {
+    clear
+    echo -e "\n"
+
+    frames=(
+        "🟡 Exiting..."  
+        "  🟡 xiting..."  
+        "    🟡 iting..."  
+        "      🟡 ting..."  
+        "        🟡 ing..."  
+        "          🟡 ng..."  
+        "            🟡 g..."  
+        "              🟡 ..."  
+        "                🟡 .."  
+        "                  🟡 ."  
+        "                    🟡  "
+        "                      👋 Goodbye! 🎉"
+    )
+
+    # Loop through frames for animation
+    for frame in "${frames[@]}"; do
+        echo -ne "\r$frame"
+        sleep 0.2
+    done
+
+    echo -e "\n\n"
+    exit 0
+}
