@@ -87,6 +87,9 @@ choose_data_type() {
             echo "DATE"
         break
         ;;
+        *)
+         error_message "Invalid choice ❌" 
+
     esac
     done
 }
@@ -104,6 +107,9 @@ choose_uniqueness(){
             echo "NULL"
             break
         ;;
+        *)
+            error_message "Invalid choice ❌" 
+
         esac
     done
 }
