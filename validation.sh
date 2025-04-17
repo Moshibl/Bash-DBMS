@@ -4,7 +4,7 @@
 # - Ensure correct data types
 # - Check primary key uniqueness
 source utils.sh
-# Function to validate database/table names
+
 validate_name() {
     local name=$1
     if [[ -z $name ]]
@@ -17,20 +17,18 @@ validate_name() {
     do
         if [[ $name =~ ^[a-zA-Z]+(_?[a-zA-Z0-9]+)*$ ]]
         then
-            # set -x
             echo $name
-            # set +x
             break
         fi
 
-        error_message "⚠️ Invalid input!" 
+        error_message "Invalid input! ❌" 
         echo  
         prompt_message "Please enter a valid name: " 
         name=$(read_input "$PS3") 
     done
 }
 
-database_exists() {
+storage_exists() {
     if ! [ -d "$SCRIPT_DIR/Databases" ]
     then
         mkdir -p  "$SCRIPT_DIR/Databases"
@@ -38,9 +36,8 @@ database_exists() {
     echo "$SCRIPT_DIR/Databases"
 }
 
-# # Function to validate data types
+
 validate_data_type() {
-    # Ensure input matches the expected type (integer, string, etc.)
     local fieldDataType=$1
     local fieldValue=$2
     while true
@@ -84,9 +81,8 @@ validate_data_type() {
     echo $fieldValue
 }
 
-# # Function to check primary key uniqueness
+
 validate_uniqueness_dataType() {
-    # Ensure the given primary key does not already exist
     local DataFile=$1
     local fieldDataType=$2
     local fieldConstraint=$3
@@ -94,7 +90,6 @@ validate_uniqueness_dataType() {
     local fieldNum=$5
 
     fieldValue="$(validate_data_type "$fieldDataType" "$fieldValue")"
-    # set -x 
     if [[ -z "$(cat "$DataFile")" ]]
     then
         echo $fieldValue

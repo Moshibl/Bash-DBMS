@@ -4,17 +4,13 @@
 # - List Tables
 # - Drop Table
 
-# source validation.sh  # Import validation functions
 source validation.sh  
 source record-operations.sh
 source utils.sh
 
 
-# Function to create a table
 create_table() {
-  # Step 1: Ask the user for the table name
-    # - Validate that the name follows naming conventions
-    # - Ensure the table name does not already exist
+
     clear
     local dataBaseDir=$1
     prompt_message "Please enter the name of the table: "
@@ -26,14 +22,6 @@ create_table() {
     then
       return 0
     fi
-    # Step 2: Create an empty data file for storing records and metadata
-    # - Store actual table data in a separate `.table` file and columnName in .meta
-    # Step 3: Define table columns
-    # - Ask the user how many columns they want
-    # - For each column:
-    #   - Ask for column name and validate it (must not contain spaces/special characters)
-    #   - Ask for column data type (e.g., STRING, INTEGER) and validate it
-    #   - Ask if this column should be UNIQUE (Yes/No)
 
     echo
     prompt_message "Please enter the number of columns for your table: "
@@ -53,9 +41,7 @@ create_table() {
       local columnUniqueness=$(choose_uniqueness)
       local metaData+=("${columnName}":${columnDataType}:${columnUniqueness})
     done
-    # Step 4: Ask the user to enter the number corresponding to the primary key column.
-    # - Validate the selection:
-    #   - Ensure the input is a valid number.
+
     fieldNames=($(printf "%s\n" "${metaData[@]}" | awk -F':' '{print $1}'))
     echo
     prompt_message "Please choose the column you want to set as the Primary Key (PK): "
@@ -72,29 +58,19 @@ create_table() {
       ;;
     esac
     done
-    
-    # Step 5: Store metadata
-    # - Save column definitions, data types, and constraints (UNIQUE, PRIMARY KEY)
-    # - Store this information in a `.meta` file inside the database directory
+
     local tableDataDir="$dataBaseDir"/$tableName.tb
     local tableMetaDir="$dataBaseDir"/$tableName.meta
     touch "$tableDataDir" "$tableMetaDir" 
-
     printf "%s\n" "${metaData[@]}" > "$tableMetaDir"
     
-    # Step 6: Display a success message after table creation
     clear
     success_message "Table '$tableName' has been successfully created! 🚀"
 }
 
+
 list_tables() {
   clear
-  # Function to list all available tables in the currently connected database.
-  # After listing the tables, the function will prompt the user with two options:
-  # 1) Choose a table to perform record operations (Insert, Select, Delete, Update).
-  # 2) Exit back to the database menu.
-  # If the user selects a table, they will be navigated to the record operations menu,
-  # where they must choose an operation or exit.
   local dbTablesDir="$1"
   if [[ -z $(ls -A "$dbTablesDir"/*.tb 2>/dev/null) ]]
   then
@@ -134,6 +110,7 @@ list_tables() {
   done
 
 }
+
 
 perform_operations() {
     local tableDir="$1"
@@ -176,7 +153,7 @@ perform_operations() {
     done
 }
 
-# Function to drop a table
+
 drop_table() {
     local dbTablesDir="$1"
     if [[ -z $(ls -A "$dbTablesDir"/*.tb 2>/dev/null) ]]
@@ -204,7 +181,7 @@ drop_table() {
      then
           local tb_name=$option
           break
-      else 
+     else 
        error_message "Invalid choice! ❌ Please select a table."   
      fi
      done

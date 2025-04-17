@@ -8,11 +8,9 @@ clear
 source validation.sh  # Import validation functions
 source table-operations.sh
 
-# Function to create a new database
 create_database() {
-    # Ask for DB name, validate, and create as a directory
     clear
-    local databaseDire=$(database_exists) 
+    local databaseDire=$(storage_exists) 
     prompt_message "Enter Database Name: "
     DB_name=$(read_input "$PS3")
     DB_name=$(validate_name $DB_name)
@@ -28,10 +26,9 @@ create_database() {
     fi
 }
 
-# Function to list available databases
 list_databases() {
     clear
-    local databaseDire=$(database_exists) 
+    local databaseDire=$(storage_exists) 
 
     if [ -z "$(ls -A "$databaseDire" )" ]
     then
@@ -49,7 +46,7 @@ list_databases() {
 
 connect_database() {
     clear
-    local databaseDire=$(database_exists) 
+    local databaseDire=$(storage_exists) 
     if [ ! -d "$databaseDire" ]; then
         error_message "Databases directory not found! ❌"
         return 1
@@ -114,11 +111,9 @@ connect_database() {
 }
 
 
-# Function to drop a database
 drop_database() {
-    # Confirm and delete the selected database directory
     clear
-    local databaseDire=$(database_exists) 
+    local databaseDire=$(storage_exists) 
     prompt_message "Search for a Database: "
     Search=$(read_input "$PS3")
     if [[ $Search == "."* || $Search == '\' ]]
@@ -180,12 +175,12 @@ drop_database() {
     done
 }
 
+
 list_tablesOperations(){
     clear
     local db_dir=$1
     while true
     do      
-            # clear
             prompt_message "⚡ Please Choose the operation to perform on $DB_name:"
             select operation in "Create Table" "List Tables" "Drop Table" "Go Back"
             do

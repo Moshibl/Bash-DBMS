@@ -6,8 +6,6 @@
 
 # Function to print formatted tables
 
-# local selected_col=$(grep -in "$option" "$tableDir.meta" | cut -d: -f1)
-# local match=$(awk -F: -v selected_col=$selected_col ' {print $selected_col} ' $tableDir.tb)
 print_table() {
     prompt_message "Table Selected: $tb_name"
     col_count=$(wc -l "$tableDir.meta")
@@ -47,13 +45,15 @@ print_table() {
     ' "$tableDir.header" "$tableDir.tb" 
     rm "$tableDir.header"
 }
-# # Function to handle user input
+
 read_input() {
     local message=$1
-    read -r -p "$message" name
-    echo "$name" 
+    read -r -p "$message" input
+    trimmed_input="${input#"${input%%[![:space:]]*}"}"
+    trimmed_input="${trimmed_input%"${trimmed_input##*[![:space:]]}"}"
+    echo $trimmed_input
 }
- # Function to display error messages
+
 error_message() {
    local message=$1
    echo -e "\e[1;31m$message\e[0m" >&2
@@ -66,6 +66,7 @@ prompt_message() {
    local message=$@
    echo -e "\e[1;36m$message\e[0m" >&2
 }
+
 # =======================================================================
 #                           Helper Functions
 # =======================================================================
@@ -113,6 +114,7 @@ choose_uniqueness(){
         esac
     done
 }
+
 pacman_exit() {
     clear
     echo -e "\n"

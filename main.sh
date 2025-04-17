@@ -2,12 +2,11 @@
 # Main script for the Bash Shell Script DBMS
 # Displays the main menu and handles user navigation
 
-# Import necessary scripts
 source db-operations.sh
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 success_message "🎉 Welcome to Bash DBMS! 🎉"
-echo
-# Function to display the main menu
+echo 
+
 main_menu() {
     while true
     do  
@@ -43,6 +42,5 @@ main_menu() {
     done
 }
 
-# Start the script by calling the main menu
 main_menu
 

@@ -8,7 +8,7 @@
 source validation.sh  # Import validation functions
 source utils.sh
 
-# Function to select and display records
+
 select_from_table() {
     local tableDir="$1"
     dbdir=$(dirname "$tableDir")
@@ -32,7 +32,7 @@ select_from_table() {
             done
     fi
 
-    select operation in "Select All" "Select Record by Value" "Select Record by Key" "Select Column" "Go Back"
+    select operation in "Select All" "Select Record by Value" "Select Record by PK" "Select Column" "Go Back"
     do
         case $operation in 
             "Select All")
@@ -46,7 +46,7 @@ select_from_table() {
                 select_by_value
                 break
                 ;;
-            "Select Record by Key")
+            "Select Record by PK")
                 clear
                 select_by_key
                 break
@@ -68,11 +68,8 @@ select_from_table() {
     done           
 }
 
-# Function to insert a new record
+
 insert_into_table() {
-    # clear
-    # Validate input types, enforce primary key constraints
-    # Append data to the table file
     local tableDir="$1"
     local fieldNum=0
     local record=""
@@ -101,9 +98,8 @@ insert_into_table() {
     echo
 }
 
-# Function to update a record
+
 update_table() {
-    # Modify an existing record while keeping data integrity
     prompt_message "Updating on: $tb_name"
     local tableDir="$1"
     select option in "Update one record based on PK 🔑" "Updete all occurrences 🔄" "Go Back"
@@ -124,23 +120,16 @@ update_table() {
     done
 }
 
+
 update_record_by_pk()
 {
     local tableDir="$1"
-    # Retrieves the entire line along with its line number from the metadata file.
-    # Extracts only the line number to determine the field position. 
     local fieldNum=$(grep -in "PK" "$tableDir.meta" | cut -d ":" -f1)
-    #  ask user about PK
     echo
     prompt_message "Please enter the PK of the record you want to update 🔑: "
     local PK_oldValue=$(read_input "$PS3")
 
-
-    # Retrieve the entire record from the database table.
-    # Searches for the record where PK matches the given value.
-    # Outputs the matching record along with its line number in the format: "lineNum:record
     record=$(awk -F":" -v fieldNum="$fieldNum" -v PK_oldValue="$PK_oldValue"  '$fieldNum==PK_oldValue {print NR":"$0}' "$tableDir.tb") 
-   
    if [[ -z "$record" ]]
     then
         error_message "No record found with PK = $PK_oldValue ❌"
@@ -148,12 +137,6 @@ update_record_by_pk()
     fi
 
     lineNum=$(echo $record | cut -d ":" -f1)
-    
-    # Prompt the user to select a column to update
-    # Retrieve the selected column's metadata (name, datatype, constraints)
-    #  Extract the old value from the selected record
-    # Ask the user for a new value and validate it based on datatype and constraints
-    # Perform the update in the database using `sed`
 
     local fieldsNames+=($(awk -F":" '{print $1}' "$tableDir.meta"))
     echo
@@ -179,6 +162,7 @@ update_record_by_pk()
     success_message "✅ Successfully updated '$oldValue' to '$newValue' in line $lineNum!"
     echo
 }
+
 
 batch_update_by_value(){
     local tableDir="$1"
